@@ -1,14 +1,34 @@
 {
     "material": [
         {
-            "nazev": "Kokos",
-            "bod_tani": 150,
-            "bod_varu": 150
+            "nazev": "Voda",
+            "bod_tani": 0,
+            "bod_varu": 100,
+            "merna_kapacita": 4200
         },
         {
-            "nazev": "Radim",
-            "bod_tani": 2500,
-            "bod_varu": 50
+            "nazev": "Zelezo",
+            "bod_tani": 100,
+            "bod_varu": 200,
+            "merna_kapacita": 300
+        },
+        {
+            "nazev": "Zlato",
+            "bod_tani": 550,
+            "bod_varu": 650,
+            "merna_kapacita": 3213
+        },
+        {
+            "nazev": "Med",
+            "bod_tani": 200,
+            "bod_varu": 350,
+            "merna_kapacita": 120
+        },
+        {
+            "nazev": "Cin",
+            "bod_tani": 1500,
+            "bod_varu": 2000,
+            "merna_kapacita": 3000
         }
     ]
 }
