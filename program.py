@@ -1,10 +1,10 @@
 import os
 import sys
 import json
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout
+from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox
 from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtWidgets import QComboBox
+
 
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +32,7 @@ class hlavni_okno(QWidget):
 
         layout = QGridLayout()
         self.setLayout(layout)
+        layout.setAlignment(QtCore.Qt.AlignTop)
 
 
         #TLACITKA -------------------------------------
@@ -41,6 +42,12 @@ class hlavni_okno(QWidget):
             data = json.load(f)
             seznam_nazvu = [m["nazev"] for m in data["material"]]
             self.combo.addItems(seznam_nazvu)
+
+        self.pole_napis = QtWidgets.QLabel("Material")
+        self.energie_napis = QtWidgets.QLabel("Vstupni energie")
+        self.vaha_napis = QtWidgets.QLabel("Vaha")
+        self.poc_tepl_napis = QtWidgets.QLabel("Pocatecni teplota")
+        self.debug1_napis = QtWidgets.QLabel("Vykonat")
 
         self.energie = QtWidgets.QLineEdit()
         self.vaha = QtWidgets.QLineEdit()
@@ -52,11 +59,20 @@ class hlavni_okno(QWidget):
 
 
         #layout
-        layout.addWidget(self.combo,0,0)
-        layout.addWidget(self.energie,0,1)
-        layout.addWidget(self.vaha,0,2)
-        layout.addWidget(self.poc_tepl,0,3)
-        layout.addWidget(self.debug1,0,4)
+        layout.addWidget(self.pole_napis, 0,0)
+        layout.addWidget(self.energie_napis,0,1)
+        layout.addWidget(self.vaha_napis,0,2)
+        layout.addWidget(self.poc_tepl_napis,0,3)
+        layout.addWidget(self.debug1_napis,0,4)
+        
+        layout.addWidget(self.combo,1,0)
+        layout.addWidget(self.energie,1,1)
+        layout.addWidget(self.vaha,1,2)
+        layout.addWidget(self.poc_tepl,1,3)
+        layout.addWidget(self.debug1,1,4)
+
+
+
 
 
         # ----------------------------------------------
