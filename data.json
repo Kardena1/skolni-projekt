@@ -1,0 +1,14 @@
+{
+    "material": [
+        {
+            "nazev": "Kokos",
+            "bod_tani": 150,
+            "bod_varu": 150
+        },
+        {
+            "nazev": "Radim",
+            "bod_tani": 2500,
+            "bod_varu": 50
+        }
+    ]
+}
