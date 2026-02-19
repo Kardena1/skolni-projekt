@@ -5,10 +5,9 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
 from PyQt5.QtGui import QPalette, QColor, QIntValidator
 
-
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
+import logika
 
 with open('data.json', 'r', encoding='utf-8') as file: # pro otevreni v cmd je potreba to otevrit absolutni cestou (c:/Users/wwtf8/Desktop/cviceni/zakaznicky_system/zakaznici_upd.py)
     data = json.load(file)   
@@ -112,7 +111,7 @@ class pridani_materialu(QWidget):
         super().__init__()
 
         self.setWindowTitle("Pridani materialu")
-        self.setFixedSize(750,100)
+        self.setFixedSize(400,300)
         self.setStyleSheet("""
         QPushButton {
             font-size: 18px;
@@ -135,13 +134,13 @@ class pridani_materialu(QWidget):
         validator = QIntValidator()
 
 
-        self.nazev_napis = QtWidgets.QLabel("Nazev")
+        self.nazev_napis = QtWidgets.QLabel("Nazev materialu")
         self.t_tani_napis = QtWidgets.QLabel("Bod tání (°C)")
         self.t_varu_napis = QtWidgets.QLabel("Bod varu (°C)")
-        self.c_pevne_napis = QtWidgets.QLabel("Měrná tepelná kapacita - pevné skupenství (J/kg°C)")
-        self.c_kapalina_napis = QtWidgets.QLabel("Měrná tepelná kapacita - kapalné skupenství (J/kg°C)")
-        self.l_tani_napis = QtWidgets.QLabel("Měrné skupenské teplo tání (J/kg)")
-        self.l_varu_napis = QtWidgets.QLabel("Měrné skupenské teplo varu (J/kg)")
+        self.c_pevne_napis = QtWidgets.QLabel("Tepelná kapacita\n pevné (J/kg°C)")
+        self.c_kapalina_napis = QtWidgets.QLabel("Tepelná kapacita\nkapalné (J/kg°C)")
+        self.l_tani_napis = QtWidgets.QLabel("Skup. teplo tání (J/kg)")
+        self.l_varu_napis = QtWidgets.QLabel("Skup. teplo varu (J/kg)")
 
 
         self.nazev = QtWidgets.QLineEdit()
@@ -152,30 +151,34 @@ class pridani_materialu(QWidget):
         self.l_tani = QtWidgets.QLineEdit()
         self.l_varu = QtWidgets.QLineEdit()
         self.button = QtWidgets.QPushButton("Přidat")
-        self.test = QtWidgets.QPushButton("Test")
+
+        self.t_tani.setValidator(validator)
+        self.t_varu.setValidator(validator)
+        self.c_pevne.setValidator(validator)
+        self.c_kapalina.setValidator(validator)
+        self.l_tani.setValidator(validator)
+        self.l_varu.setValidator(validator)
 
 
-        layout.addWidget(self.nazev_napis,0,0)
-        layout.addWidget(self.t_tani_napis,0,1)
-        layout.addWidget(self.t_varu_napis,0,2)
-        layout.addWidget(self.c_pevne_napis,0,3)
-        layout.addWidget(self.c_kapalina_napis,0,4)
-        layout.addWidget(self.l_tani_napis,0,5)
-        layout.addWidget(self.l_varu_napis,0,6)
+        layout.addWidget(self.nazev_napis,1,0)
+        layout.addWidget(self.t_tani_napis,2,0)
+        layout.addWidget(self.t_varu_napis,3,0)
+        layout.addWidget(self.c_pevne_napis,4,0)
+        layout.addWidget(self.c_kapalina_napis,5,0)
+        layout.addWidget(self.l_tani_napis,6,0)
+        layout.addWidget(self.l_varu_napis,7,0)
 
-        layout.addWidget(self.nazev,1,0)   
-        layout.addWidget(self.t_tani,1,1)
-        layout.addWidget(self.t_varu,1,2)
-        layout.addWidget(self.c_pevne,1,3)
-        layout.addWidget(self.c_kapalina,1,4)
-        layout.addWidget(self.l_tani,1,5)
-        layout.addWidget(self.l_varu,1,6) 
-        layout.addWidget(self.test,2,5)
-        layout.addWidget(self.button,2,6)
+        layout.addWidget(self.nazev,1,1)   
+        layout.addWidget(self.t_tani,2,1)
+        layout.addWidget(self.t_varu,3,1)
+        layout.addWidget(self.c_pevne,4,1)
+        layout.addWidget(self.c_kapalina,5,1)
+        layout.addWidget(self.l_tani,6,1)
+        layout.addWidget(self.l_varu,7,1) 
+        layout.addWidget(self.button,8,6)
 
 
         self.button.clicked.connect(self.pridani_materialu)
-        self.test.clicked.connect(self.ukaz_upozorneni)
 
 
     def pridani_materialu(self):
@@ -186,27 +189,47 @@ class pridani_materialu(QWidget):
         # c_kapalina = float(input("Zadej měrnou tepelnou kapacitu - kapalné skupenství (J/kg°C): "))
         # l_tani = float(input("Zadej měrné skupenské teplo tání (J/kg): "))
         # l_varu = float(input("Zadej měrné skupenské teplo varu (J/kg): "))
-        novy_material = {
-            "nazev": self.nazev.text(),
-            "bod_tani": self.t_tani.text(),
-            "bod_varu": self.t_varu.text(),
-            "tepelna_kapacita_pevne": self.c_pevne.text(),
-            "tepelna_kapacita_kapalina": self.c_kapalina.text(),
-            "skupenske_teplo_tani": self.l_tani.text(),
-            "skupenske_teplo_varu": self.l_varu.text()
-        }
-        data["material"].append(novy_material)
-        with open('data.json', 'w', encoding='utf-8') as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru 
+        if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.l_tani.text() and self.l_varu.text():
+            if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Chyba")
+                msg.setText("Tento materiál již existuje.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+            
+
+            else:
+                novy_material = {
+                    "nazev": self.nazev.text(),
+                    "bod_tani": self.t_tani.text(),
+                    "bod_varu": self.t_varu.text(),
+                    "tepelna_kapacita_pevne": self.c_pevne.text(),
+                    "tepelna_kapacita_kapalina": self.c_kapalina.text(),
+                    "skupenske_teplo_tani": self.l_tani.text(),
+                    "skupenske_teplo_varu": self.l_varu.text()
+                }
+                data["material"].append(novy_material)
+                with open('data.json', 'w', encoding='utf-8') as file:
+                    json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Úspěch")
+                msg.setText("Materiál byl úspěšně přidán.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+                self.close()
+
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setText("Vyplňte všechna pole.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+                         
 
 
-    def ukaz_upozorneni(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle("Informace")
-        msg.setText("Material byl úspěšně přidán.")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
 
 
 
