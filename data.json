@@ -29,6 +29,15 @@
             "bod_tani": 1500,
             "bod_varu": 2000,
             "merna_kapacita": 3000
+        },
+        {
+            "nazev": "Kov",
+            "bod_tani": "150",
+            "bod_varu": "200",
+            "tepelna_kapacita_pevne": "250",
+            "tepelna_kapacita_kapalina": "300",
+            "skupenske_teplo_tani": "350",
+            "skupenske_teplo_varu": "400"
         }
     ]
 }
