@@ -24,10 +24,23 @@ class hlavni_okno(QWidget):
         self.setStyleSheet("""
                            
         QPushButton {
-            font-size: 18px;
-            # background-color: #000000;
+            font-size: 17px;
+            background-color: #32CD32;
+            color: #000000;
+            border-radius: 25px;   
+            border-color: #000000; 
         }
-
+        QLineEdit {
+            background-color: #32CD32;
+            color: #000000;
+            margin-top: 0px;
+        }
+        QComboBox {
+            background-color: #32CD32;
+            color: #000000;              
+        }
+                           
+                        
         """)
 
         layout = QGridLayout()
