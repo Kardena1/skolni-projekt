@@ -85,7 +85,7 @@ class hlavni_okno(QWidget):
         # ----------------------------------------------
 
     def test(self):
-        self.pridani_materialu_okno = pridani_materialu()
+        self.pridani_materialu_okno = pridani_materialu(self)
         self.pridani_materialu_okno.show()
 
         
@@ -97,19 +97,25 @@ class hlavni_okno(QWidget):
 
         index = self.combo.currentIndex()
         vybrany_material = data["material"][index]
+        
         tani = vybrany_material["bod_tani"]
         varu = vybrany_material["bod_varu"]
-        kapacita = vybrany_material["merna_kapacita"]
+        tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
+        tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
+        skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
+        skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
 
-        vysl = tani - varu
+        vysl = logika.vypocitat_a(tani, varu, tep_kapacita_pevne, tep_kapacita_kapalina)
 
-        print(f" Nazev materialu: {vybrany_material["nazev"]}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {kapacita}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()}\n")
-
+        print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
+        print("test2:", int(self.energie.text())/(int(self.vaha.text())*int(self.poc_tepl.text())))
+        print(f"test3: {vysl}")
 
 class pridani_materialu(QWidget):
-    def __init__(self):
+    def __init__(self, hlavni_okno_ref):
         super().__init__()
 
+        self.hlavni_okno_ref = hlavni_okno_ref
         self.setWindowTitle("Pridani materialu")
         self.setFixedSize(400,300)
         self.setStyleSheet("""
@@ -135,12 +141,19 @@ class pridani_materialu(QWidget):
 
 
         self.nazev_napis = QtWidgets.QLabel("Nazev materialu")
-        self.t_tani_napis = QtWidgets.QLabel("Bod tání (°C)")
-        self.t_varu_napis = QtWidgets.QLabel("Bod varu (°C)")
-        self.c_pevne_napis = QtWidgets.QLabel("Tepelná kapacita\n pevné (J/kg°C)")
-        self.c_kapalina_napis = QtWidgets.QLabel("Tepelná kapacita\nkapalné (J/kg°C)")
-        self.l_tani_napis = QtWidgets.QLabel("Skup. teplo tání (J/kg)")
-        self.l_varu_napis = QtWidgets.QLabel("Skup. teplo varu (J/kg)")
+        self.t_tani_napis = QtWidgets.QLabel("Bod tání")
+        self.t_varu_napis = QtWidgets.QLabel("Bod varu")
+        self.c_pevne_napis = QtWidgets.QLabel("Tepelná kapacita\n pevné skupenství")
+        self.c_kapalina_napis = QtWidgets.QLabel("Tepelná kapacita\nkapalné skupenství")
+        self.l_tani_napis = QtWidgets.QLabel("Skup. teplo tání")
+        self.l_varu_napis = QtWidgets.QLabel("Skup. teplo varu")
+
+        self.t_tani_napis_po = QtWidgets.QLabel("(°C)")
+        self.t_varu_napis_po = QtWidgets.QLabel("(°C)")
+        self.c_pevne_napis_po = QtWidgets.QLabel("(J/kg°C)")
+        self.c_kapalina_napis_po = QtWidgets.QLabel("(J/kg°C)")
+        self.l_tani_napis_po = QtWidgets.QLabel("(J/kg)")
+        self.l_varu_napis_po = QtWidgets.QLabel("(J/kg)")
 
 
         self.nazev = QtWidgets.QLineEdit()
@@ -168,6 +181,13 @@ class pridani_materialu(QWidget):
         layout.addWidget(self.l_tani_napis,6,0)
         layout.addWidget(self.l_varu_napis,7,0)
 
+        layout.addWidget(self.t_tani_napis_po,2,2)
+        layout.addWidget(self.t_varu_napis_po,3,2)
+        layout.addWidget(self.c_pevne_napis_po,4,2)
+        layout.addWidget(self.c_kapalina_napis_po,5,2)
+        layout.addWidget(self.l_tani_napis_po,6,2)
+        layout.addWidget(self.l_varu_napis_po,7,2)
+
         layout.addWidget(self.nazev,1,1)   
         layout.addWidget(self.t_tani,2,1)
         layout.addWidget(self.t_varu,3,1)
@@ -175,7 +195,12 @@ class pridani_materialu(QWidget):
         layout.addWidget(self.c_kapalina,5,1)
         layout.addWidget(self.l_tani,6,1)
         layout.addWidget(self.l_varu,7,1) 
-        layout.addWidget(self.button,8,6)
+        layout.addWidget(self.button,8,2)
+
+        
+        
+
+       
 
 
         self.button.clicked.connect(self.pridani_materialu)
@@ -191,13 +216,7 @@ class pridani_materialu(QWidget):
         # l_varu = float(input("Zadej měrné skupenské teplo varu (J/kg): "))
         if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.l_tani.text() and self.l_varu.text():
             if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Warning)
-                msg.setWindowTitle("Chyba")
-                msg.setText("Tento materiál již existuje.")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
-            
+                self.oznameni("Materiál s tímto názvem již existuje!")
 
             else:
                 novy_material = {
@@ -209,6 +228,8 @@ class pridani_materialu(QWidget):
                     "skupenske_teplo_tani": self.l_tani.text(),
                     "skupenske_teplo_varu": self.l_varu.text()
                 }
+
+                self.hlavni_okno_ref.combo.addItem(self.nazev.text())
                 data["material"].append(novy_material)
                 with open('data.json', 'w', encoding='utf-8') as file:
                     json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
@@ -221,14 +242,15 @@ class pridani_materialu(QWidget):
                 self.close()
 
         else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Chyba")
-            msg.setText("Vyplňte všechna pole.")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
-                         
+            self.oznameni("Vyplňte všechna pole!")            
 
+    def oznameni(self, text):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Oznámení")
+        msg.setText(text)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
 
 
 

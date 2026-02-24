@@ -1,36 +1,6 @@
 {
     "material": [
         {
-            "nazev": "Voda",
-            "bod_tani": 0,
-            "bod_varu": 100,
-            "merna_kapacita": 4200
-        },
-        {
-            "nazev": "Zelezo",
-            "bod_tani": 100,
-            "bod_varu": 200,
-            "merna_kapacita": 300
-        },
-        {
-            "nazev": "Zlato",
-            "bod_tani": 550,
-            "bod_varu": 650,
-            "merna_kapacita": 3213
-        },
-        {
-            "nazev": "Med",
-            "bod_tani": 200,
-            "bod_varu": 350,
-            "merna_kapacita": 120
-        },
-        {
-            "nazev": "Cin",
-            "bod_tani": 1500,
-            "bod_varu": 2000,
-            "merna_kapacita": 3000
-        },
-        {
             "nazev": "Kov",
             "bod_tani": "150",
             "bod_varu": "200",
@@ -47,6 +17,24 @@
             "tepelna_kapacita_kapalina": "4",
             "skupenske_teplo_tani": "5",
             "skupenske_teplo_varu": "6"
+        },
+        {
+            "nazev": "kuba",
+            "bod_tani": "1",
+            "bod_varu": "2",
+            "tepelna_kapacita_pevne": "3",
+            "tepelna_kapacita_kapalina": "4",
+            "skupenske_teplo_tani": "5",
+            "skupenske_teplo_varu": "6"
+        },
+        {
+            "nazev": "radim",
+            "bod_tani": "6",
+            "bod_varu": "5",
+            "tepelna_kapacita_pevne": "4",
+            "tepelna_kapacita_kapalina": "3",
+            "skupenske_teplo_tani": "2",
+            "skupenske_teplo_varu": "1"
         }
     ]
 }
