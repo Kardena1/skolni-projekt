@@ -272,6 +272,8 @@ class pridani_materialu(QWidget):
                 msg.setStandardButtons(QMessageBox.Ok)
                 msg.exec_()
                 self.close()
+                self.pridani_materialu_okno.close()
+
 
         else:
             self.oznameni("Vyplňte všechna pole!")            
