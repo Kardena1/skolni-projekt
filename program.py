@@ -4,6 +4,8 @@ import json
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
 from PyQt5.QtGui import QPalette, QColor, QIntValidator
+from PyQt5.QtGui import QRegularExpressionValidator
+from PyQt5.QtCore import QRegularExpression, Qt
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
@@ -49,6 +51,8 @@ class hlavni_okno(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         layout.setAlignment(QtCore.Qt.AlignTop)
+        regex = QRegularExpression(r"^[0-9]*\.?[0-9]*$")
+        validator = QRegularExpressionValidator(regex)
 
 
         #TLACITKA -------------------------------------
@@ -70,6 +74,11 @@ class hlavni_okno(QWidget):
         self.vaha = QtWidgets.QLineEdit()
         self.poc_tepl = QtWidgets.QLineEdit()
         self.debug1 = QtWidgets.QPushButton("Debug")
+
+
+        self.energie.setValidator(validator)
+        self.vaha.setValidator(validator)
+        self.poc_tepl.setValidator(validator)
         # eventy
         self.debug1.clicked.connect(self.debugs)
         self.button.clicked.connect(self.test)
@@ -143,7 +152,7 @@ class hlavni_okno(QWidget):
         vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
 
         print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
-        print("test2:", int(self.energie.text())/(int(self.vaha.text())*int(self.poc_tepl.text())))
+        print("test2:", float(self.energie.text())/(float(self.vaha.text())*int(self.poc_tepl.text())))
         print(f"test3: {vysl}")
 
 class pridani_materialu(QWidget):
