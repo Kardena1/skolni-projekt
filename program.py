@@ -22,21 +22,24 @@ class hlavni_okno(QWidget):
         self.setWindowTitle("Kalkulacka")
         self.setFixedSize(500,500)
         self.setStyleSheet("""
-                           
+        QWidget {
+            background-color: #FFDD99;
+            color: #000000;
+                           }                  
         QPushButton {
             font-size: 17px;
-            background-color: #32CD32;
+            background-color: #FFAA00;
             color: #000000;
             border-radius: 25px;   
             border-color: #000000; 
         }
         QLineEdit {
-            background-color: #32CD32;
+            background-color: #FFAA00;
             color: #000000;
             margin-top: 0px;
         }
         QComboBox {
-            background-color: #32CD32;
+            background-color: #D18B00;
             color: #000000;              
         }
                            
