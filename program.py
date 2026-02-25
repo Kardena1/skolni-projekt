@@ -106,11 +106,11 @@ class hlavni_okno(QWidget):
         for i, material in enumerate(data["material"], start=1):
             print(f"{i}. Material:", material["nazev"], "Bod tani:", material["bod_tani"],"°C", "Bod varu:", material["bod_varu"],"°C","\n") # vypsat materialy s jejich atributy
 
-    def debugs(self):
 
+    def vypocitat(self):
         index = self.combo.currentIndex()
         vybrany_material = data["material"][index]
-        
+
         tani = vybrany_material["bod_tani"]
         varu = vybrany_material["bod_varu"]
         tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
@@ -118,7 +118,26 @@ class hlavni_okno(QWidget):
         skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
         skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
 
-        vysl = logika.vypocitat_a(tani, varu, tep_kapacita_pevne, tep_kapacita_kapalina)
+        vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+
+        
+
+
+
+
+    def debugs(self):
+
+        index = self.combo.currentIndex()
+        vybrany_material = data["material"][index]
+
+        tani = vybrany_material["bod_tani"]
+        varu = vybrany_material["bod_varu"]
+        tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
+        tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
+        skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
+        skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
+
+        vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
 
         print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
         print("test2:", int(self.energie.text())/(int(self.vaha.text())*int(self.poc_tepl.text())))

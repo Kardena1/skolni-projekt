@@ -1,40 +1,61 @@
 {
     "material": [
-        {
-            "nazev": "Kov",
-            "bod_tani": "150",
-            "bod_varu": "200",
-            "tepelna_kapacita_pevne": "250",
-            "tepelna_kapacita_kapalina": "300",
-            "skupenske_teplo_tani": "350",
-            "skupenske_teplo_varu": "400"
-        },
-        {
-            "nazev": "Gold",
-            "bod_tani": "1",
-            "bod_varu": "2",
-            "tepelna_kapacita_pevne": "3",
-            "tepelna_kapacita_kapalina": "4",
-            "skupenske_teplo_tani": "5",
-            "skupenske_teplo_varu": "6"
-        },
-        {
-            "nazev": "kuba",
-            "bod_tani": "1",
-            "bod_varu": "2",
-            "tepelna_kapacita_pevne": "3",
-            "tepelna_kapacita_kapalina": "4",
-            "skupenske_teplo_tani": "5",
-            "skupenske_teplo_varu": "6"
-        },
-        {
-            "nazev": "radim",
-            "bod_tani": "6",
-            "bod_varu": "5",
-            "tepelna_kapacita_pevne": "4",
-            "tepelna_kapacita_kapalina": "3",
-            "skupenske_teplo_tani": "2",
-            "skupenske_teplo_varu": "1"
-        }
+    {
+        "nazev": "Železo",
+        "bod_tani": 1538,
+        "bod_varu": 2862,
+        "tepelna_kapacita_pevne": 450,
+        "tepelna_kapacita_kapalina": 820,
+        "skupenske_teplo_tani": 289000,
+        "skupenske_teplo_varu": 6090000
+    },
+    {
+        "nazev": "Zlato",
+        "bod_tani": 1064,
+        "bod_varu": 2856,
+        "tepelna_kapacita_pevne": 129,
+        "tepelna_kapacita_kapalina": 150,
+        "skupenske_teplo_tani": 63000,
+        "skupenske_teplo_varu": 1645000
+    },
+    {
+        "nazev": "Hliník",
+        "bod_tani": 660,
+        "bod_varu": 2519,
+        "tepelna_kapacita_pevne": 897,
+        "tepelna_kapacita_kapalina": 1090,
+        "skupenske_teplo_tani": 397000,
+        "skupenske_teplo_varu": 10780000
+    },
+    {
+        "nazev": "Měď",
+        "bod_tani": 1085,
+        "bod_varu": 2562,
+        "tepelna_kapacita_pevne": 385,
+        "tepelna_kapacita_kapalina": 490,
+        "skupenske_teplo_tani": 205000,
+        "skupenske_teplo_varu": 4730000
+    },
+    {
+        "nazev": "Led / Voda",
+        "bod_tani": 0,
+        "bod_varu": 100,
+        "tepelna_kapacita_pevne": 2100,
+        "tepelna_kapacita_kapalina": 4180,
+        "skupenske_teplo_tani": 334000,
+        "skupenske_teplo_varu": 2260000
+    },
+    {
+        "nazev": "Ethanol (Líh)",
+        "bod_tani": -114,
+        "bod_varu": 78,
+        "tepelna_kapacita_pevne": 2420,
+        "tepelna_kapacita_kapalina": 2460,
+        "skupenske_teplo_tani": 108000,
+        "skupenske_teplo_varu": 846000
+    }
     ]
 }
+
+
+
