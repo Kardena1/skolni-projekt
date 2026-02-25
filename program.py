@@ -30,7 +30,7 @@ class hlavni_okno(QWidget):
             font-size: 17px;
             background-color: #FFAA00;
             color: #000000;
-            border-radius: 25px;   
+            border-radius: 20px;   
             border-color: #000000; 
         }
         QLineEdit {
@@ -154,14 +154,16 @@ class pridani_materialu(QWidget):
         self.setWindowTitle("Pridani materialu")
         self.setFixedSize(400,300)
         self.setStyleSheet("""
+        QWidget {
+            background-color: #FFDD99;                 
+        }
         QPushButton {
             font-size: 18px;
-            #background-color: #f0f0f0;
+            background-color: #FFAA00;
         }
         QLineEdit {
-            background-color: #000000;
+            background-color: #FFAA00;
             color: #ffffff;
-            margin-top: 25px;
         }
         """)
 
