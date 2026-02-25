@@ -3,9 +3,11 @@ import sys
 import json
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
-from PyQt5.QtGui import QPalette, QColor, QIntValidator
+from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap
 from PyQt5.QtGui import QRegularExpressionValidator
 from PyQt5.QtCore import QRegularExpression, Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSize
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
@@ -142,23 +144,23 @@ class hlavni_okno(QWidget):
 
 
 
-    def debugs(self):
+    # def debugs(self):
 
-        index = self.combo.currentIndex()
-        vybrany_material = data["material"][index]
+    #     index = self.combo.currentIndex()
+    #     vybrany_material = data["material"][index]
 
-        tani = vybrany_material["bod_tani"]
-        varu = vybrany_material["bod_varu"]
-        tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
-        tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
-        skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
-        skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
+    #     tani = vybrany_material["bod_tani"]
+    #     varu = vybrany_material["bod_varu"]
+    #     tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
+    #     tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
+    #     skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
+    #     skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
 
-        vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+    #     vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
 
-        print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
-        print("test2:", float(self.energie.text())/(float(self.vaha.text())*int(self.poc_tepl.text())))
-        print(f"test3: {vysl}")
+    #     print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
+    #     print("test2:", float(self.energie.text())/(float(self.vaha.text())*int(self.poc_tepl.text())))
+    #     print(f"test3: {vysl}")
 
 class pridani_materialu(QWidget):
     def __init__(self, hlavni_okno_ref):
@@ -166,7 +168,7 @@ class pridani_materialu(QWidget):
 
         self.hlavni_okno_ref = hlavni_okno_ref
         self.setWindowTitle("Pridani materialu")
-        self.setFixedSize(400,300)
+        self.setFixedSize(600,300)
         self.setStyleSheet("""
         QWidget {
             background-color: #FFDD99;                 
@@ -206,6 +208,12 @@ class pridani_materialu(QWidget):
         self.l_tani_napis_po = QtWidgets.QLabel("(J/kg)")
         self.l_varu_napis_po = QtWidgets.QLabel("(J/kg)")
 
+        self.btn_smazat = QtWidgets.QPushButton()
+        self.btn_smazat.setIcon(QIcon("kos.png"))
+        self.btn_smazat.setIconSize(QSize(30, 30)) # Velikost ikony
+        self.btn_smazat.setFixedSize(50, 50)
+        self.btn_smazat.setStyleSheet("background-color: transparent; border: none;")
+
 
         self.nazev = QtWidgets.QLineEdit()
         self.t_tani = QtWidgets.QLineEdit()
@@ -214,6 +222,10 @@ class pridani_materialu(QWidget):
         self.c_kapalina = QtWidgets.QLineEdit()
         self.l_tani = QtWidgets.QLineEdit()
         self.l_varu = QtWidgets.QLineEdit()
+
+        self.l_varu.setFixedSize(200,20)
+
+
         self.button = QtWidgets.QPushButton("Přidat")
 
         self.t_tani.setValidator(validator)
@@ -222,6 +234,8 @@ class pridani_materialu(QWidget):
         self.c_kapalina.setValidator(validator)
         self.l_tani.setValidator(validator)
         self.l_varu.setValidator(validator)
+
+        layout.addWidget(self.btn_smazat,0,2)
 
 
         layout.addWidget(self.nazev_napis,1,0)
