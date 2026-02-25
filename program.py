@@ -73,14 +73,14 @@ class hlavni_okno(QWidget):
         self.energie = QtWidgets.QLineEdit()
         self.vaha = QtWidgets.QLineEdit()
         self.poc_tepl = QtWidgets.QLineEdit()
-        self.debug1 = QtWidgets.QPushButton("Debug")
+        self.debug1 = QtWidgets.QPushButton("Vypocitat")
 
 
         self.energie.setValidator(validator)
         self.vaha.setValidator(validator)
         self.poc_tepl.setValidator(validator)
         # eventy
-        self.debug1.clicked.connect(self.debugs)
+        self.debug1.clicked.connect(self.vypocitat)
         self.button.clicked.connect(self.test)
 
 
@@ -130,8 +130,13 @@ class hlavni_okno(QWidget):
         skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
         skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
 
-        vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
-
+        teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Výsledek")
+        msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
         
 
 
