@@ -56,7 +56,4 @@ def vypocitat_a(data, energie, vaha, poc_teplot):
 
 
     
-    print(potreba_na_tani,potreba_na_var)
-    print(f"debug1 {type(bod_tani)} {type(bod_varu)} {type(tep_kap_pev)} {type(tep_kap_kapal)} {type(skup_tani)} {type(skup_varu)} {type(energie)} {type(vaha)} {type(poc_teplot)}")
-
-
+   

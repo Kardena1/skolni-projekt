@@ -125,13 +125,6 @@ class hlavni_okno(QWidget):
         index = self.combo.currentIndex()
         vybrany_material = data["material"][index]
 
-        tani = vybrany_material["bod_tani"]
-        varu = vybrany_material["bod_varu"]
-        tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
-        tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
-        skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
-        skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
-
         teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
@@ -168,7 +161,8 @@ class pridani_materialu(QWidget):
 
         self.hlavni_okno_ref = hlavni_okno_ref
         self.setWindowTitle("Pridani materialu")
-        self.setFixedSize(600,300)
+        self.setMinimumSize(400, 300)
+        self.setMaximumSize(400, 300)
         self.setStyleSheet("""
         QWidget {
             background-color: #FFDD99;                 
@@ -187,7 +181,7 @@ class pridani_materialu(QWidget):
 
         layout = QGridLayout()
         self.setLayout(layout)
-        layout.setAlignment(QtCore.Qt.AlignCenter)
+        layout.setAlignment(QtCore.Qt.AlignLeft)
 
 
         validator = QIntValidator()
@@ -212,8 +206,16 @@ class pridani_materialu(QWidget):
         self.btn_smazat.setIcon(QIcon("kos.png"))
         self.btn_smazat.setIconSize(QSize(30, 30)) # Velikost ikony
         self.btn_smazat.setFixedSize(50, 50)
-        self.btn_smazat.setStyleSheet("background-color: transparent; border: none;")
+        self.btn_smazat.setStyleSheet("background-color: transparent; border: none; ")
 
+        self.combosmazat = QComboBox()
+        with open('data.json','r',encoding='UTF-8') as f:
+            data = json.load(f)
+            seznam_nazvu = [m["nazev"] for m in data["material"]]
+            self.combosmazat.addItems(seznam_nazvu)   
+
+        self.smazat = QtWidgets.QPushButton("Smazat")
+        self.smazat.setStyleSheet("background-color: #FF0000; color: white; font-size: 18px;")
 
         self.nazev = QtWidgets.QLineEdit()
         self.t_tani = QtWidgets.QLineEdit()
@@ -223,7 +225,13 @@ class pridani_materialu(QWidget):
         self.l_tani = QtWidgets.QLineEdit()
         self.l_varu = QtWidgets.QLineEdit()
 
-        self.l_varu.setFixedSize(200,20)
+        self.nazev.setFixedWidth(150)
+        self.l_varu.setFixedWidth(150)
+        self.l_tani.setFixedWidth(150)
+        self.c_kapalina.setFixedWidth(150)
+        self.c_pevne.setFixedWidth(150)
+        self.t_varu.setFixedWidth(150)
+        self.t_tani.setFixedWidth(150)
 
 
         self.button = QtWidgets.QPushButton("Přidat")
@@ -260,14 +268,22 @@ class pridani_materialu(QWidget):
         layout.addWidget(self.c_kapalina,5,1)
         layout.addWidget(self.l_tani,6,1)
         layout.addWidget(self.l_varu,7,1) 
-        layout.addWidget(self.button,8,2)
+        layout.addWidget(self.button,8,2,QtCore.Qt.AlignRight)
+        layout.setColumnStretch(3, 1)
+        layout.setRowStretch(9, 1)
 
+       
+        layout.addWidget(self.combosmazat, 1, 3,2,2, QtCore.Qt.AlignCenter) # Přidání testovacího labelu do pravého horního rohu
+        layout.addWidget(self.smazat, 3, 3,2,2, QtCore.Qt.AlignCenter) # Přidání tlačítka smazat vedle testovacího labelu
+        self.combosmazat.setStyleSheet("font-size: 20px;") # Nastavení stylu pro testovací label
+        self.combosmazat.hide()
+        self.smazat.hide()
         
         
 
        
-
-
+        self.smazat.clicked.connect(self.smazani_materialu)
+        self.btn_smazat.clicked.connect(self.rozsireni)
         self.button.clicked.connect(self.pridani_materialu)
 
 
@@ -298,18 +314,39 @@ class pridani_materialu(QWidget):
                 data["material"].append(novy_material)
                 with open('data.json', 'w', encoding='utf-8') as file:
                     json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle("Úspěch")
-                msg.setText("Materiál byl úspěšně přidán.")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
+                self.oznameni("Materiál byl úspěšně přidán.")
                 self.close()
-                self.pridani_materialu_okno.close()
-
+                self.hlavni_okno_ref.refresh_combo()
 
         else:
-            self.oznameni("Vyplňte všechna pole!")            
+            self.oznameni("Vyplňte všechna pole!")
+
+    def smazani_materialu(self):
+        index = self.combosmazat.currentIndex()
+        vybrany_material = data["material"][index]
+        data["material"].remove(vybrany_material)
+        with open('data.json', 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
+        self.hlavni_okno_ref.combo.removeItem(index)
+        self.hlavni_okno_ref.combo.setCurrentIndex(0)
+        self.combosmazat.removeItem(index)
+        self.combosmazat.setCurrentIndex(0)
+        self.oznameni("Materiál byl úspěšně smazán.")
+        self.close()  
+
+    def rozsireni(self,__init__):
+        if self.combosmazat.isVisible():
+            self.setMinimumSize(400, 300)
+            self.setMaximumSize(400, 300)
+            self.combosmazat.hide()
+            self.smazat.hide()
+            self.resize(400, 300)
+        else:
+            self.setMaximumSize(600, 300)
+            self.setMinimumSize(600, 300)
+            self.resize(600, 300) 
+            self.combosmazat.show()   
+            self.smazat.show()       
 
     def oznameni(self, text):
         msg = QMessageBox()
@@ -340,18 +377,3 @@ sys.exit(app.exec())
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Funkce
