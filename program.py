@@ -34,17 +34,29 @@ class hlavni_okno(QWidget):
             font-size: 17px;
             background-color: #FFAA00;
             color: #000000;
-            border-radius: 20px;   
-            border-color: #000000; 
+            border-radius: 10px;   
+            border-color: #000000;
+            min-width: 105px;
+            min-height: 40px;                                                     
         }
         QLineEdit {
             background-color: #FFAA00;
             color: #000000;
             margin-top: 0px;
+            min-height: 40px;
+            font-size: 17px; 
+            min-width: 60px;
+                                                   
         }
         QComboBox {
             background-color: #D18B00;
-            color: #000000;              
+            color: #000000;  
+            min-height: 40px;
+            font-size: 17px;                                        
+        }
+        QMessageBox {
+            background-color: #FFDD99;
+            color: #000000;
         }
                            
                         
@@ -64,11 +76,13 @@ class hlavni_okno(QWidget):
             data = json.load(f)
             seznam_nazvu = [m["nazev"] for m in data["material"]]
             self.combo.addItems(seznam_nazvu)
+
+
         
-        self.button = QtWidgets.QPushButton("Pridat material")
+        self.button = QtWidgets.QPushButton("Sprava Mat.")
         self.pole_napis = QtWidgets.QLabel("Material")
         self.energie_napis = QtWidgets.QLabel("Vstupni energie")
-        self.vaha_napis = QtWidgets.QLabel("Vaha")
+        self.vaha_napis = QtWidgets.QLabel("Vaha        ")
         self.poc_tepl_napis = QtWidgets.QLabel("Pocatecni teplota")
         self.debug1_napis = QtWidgets.QLabel("Vykonat")
 
@@ -76,12 +90,22 @@ class hlavni_okno(QWidget):
         self.vaha = QtWidgets.QLineEdit()
         self.poc_tepl = QtWidgets.QLineEdit()
         self.debug1 = QtWidgets.QPushButton("Vypocitat")
+        layout.setRowStretch(2, 1)
+
+        self.energie.setPlaceholderText("J")
+        self.poc_tepl.setPlaceholderText("°C")
+        self.vaha.setPlaceholderText("Kg")
+
+        self.poc_tepl.setObjectName("poc_tepl")
+
 
 
         self.energie.setValidator(validator)
         self.vaha.setValidator(validator)
         self.poc_tepl.setValidator(validator)
         # eventy
+
+        self.combo.currentIndexChanged.connect(self.zobrazit_info)
         self.debug1.clicked.connect(self.vypocitat)
         self.button.clicked.connect(self.test)
 
@@ -100,7 +124,7 @@ class hlavni_okno(QWidget):
         layout.addWidget(self.poc_tepl,1,3)
         layout.addWidget(self.debug1,1,4)
 
-        layout.addWidget(self.button,3,4)
+        layout.addWidget(self.button,3,4, QtCore.Qt.AlignBottom)
 
 
 
@@ -115,23 +139,55 @@ class hlavni_okno(QWidget):
         self.pridani_materialu_okno = pridani_materialu(self)
         self.pridani_materialu_okno.show()
 
+    def zobrazit_info(self):
+        index = self.combo.currentIndex()
+
+        data1 = data["material"][index]
+
+        nazev = data1["nazev"]
+        bod_tani = float(data1['bod_tani'])
+        bod_varu = float(data1['bod_varu'])
+        tep_kap_pev = float(data1['tepelna_kapacita_pevne'])
+        tep_kap_kapal = float(data1['tepelna_kapacita_kapalina'])
+        skup_tani = float(data1['skupenske_teplo_tani'])
+        skup_varu = float(data1['skupenske_teplo_varu'])
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Informace")
+        msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
         
+
+
+
+
     def vypsat_materialy(self):
         for i, material in enumerate(data["material"], start=1):
             print(f"{i}. Material:", material["nazev"], "Bod tani:", material["bod_tani"],"°C", "Bod varu:", material["bod_varu"],"°C","\n") # vypsat materialy s jejich atributy
 
 
     def vypocitat(self):
-        index = self.combo.currentIndex()
-        vybrany_material = data["material"][index]
+        try: 
+            index = self.combo.currentIndex()
+            vybrany_material = data["material"][index]
 
-        teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle("Výsledek")
-        msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+            teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Výsledek")
+            msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except ValueError:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setText("Zadejte platné číselné hodnoty pro energii, váhu a počáteční teplotu.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
         
 
 
@@ -316,7 +372,6 @@ class pridani_materialu(QWidget):
                     json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
                 self.oznameni("Materiál byl úspěšně přidán.")
                 self.close()
-                self.hlavni_okno_ref.refresh_combo()
 
         else:
             self.oznameni("Vyplňte všechna pole!")
