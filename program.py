@@ -3,11 +3,11 @@ import sys
 import json
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
-from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap
+from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap,QIcon,QRegularExpressionValidator
 from PyQt5.QtGui import QRegularExpressionValidator
-from PyQt5.QtCore import QRegularExpression, Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QRegularExpression, Qt,QSize
+
+
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
