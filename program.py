@@ -9,6 +9,8 @@ from PyQt5.QtCore import QRegularExpression, Qt,QSize
 
 
 
+
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 import logika
@@ -20,114 +22,102 @@ app = QApplication(sys.argv)
 app.setStyle("Fusion")
 
 class hlavni_okno(QWidget):
-    def __init__ (self):
+    def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Kalkulacka")
-        self.setFixedSize(500,500)
+        self.setWindowTitle("Fyzikální Kalkulačka Materiálů")
+        self.setFixedSize(600, 650)
         self.setStyleSheet("""
-        QWidget {
-            background-color: #FFDD99;
-            color: #000000;
-                           }                  
-        QPushButton {
-            font-size: 17px;
-            background-color: #FFAA00;
-            color: #000000;
-            border-radius: 10px;   
-            border-color: #000000;
-            min-width: 105px;
-            min-height: 40px;                                                     
-        }
-        QLineEdit {
-            background-color: #FFAA00;
-            color: #000000;
-            margin-top: 0px;
-            min-height: 40px;
-            font-size: 17px; 
-            min-width: 60px;
-                                                   
-        }
-        QComboBox {
-            background-color: #D18B00;
-            color: #000000;  
-            min-height: 40px;
-            font-size: 17px;                                        
-        }
-        QMessageBox {
-            background-color: #FFDD99;
-            color: #000000;
-        }
-                           
-                        
+            QWidget { background-color: #FFDD99; color: #000000; font-family: sans-serif; }
+            QGroupBox { 
+                font-weight: bold; border: 2px solid #D18B00; 
+                margin-top: 1.1em; border-radius: 5px; padding: 10px;
+            }
+            QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px; }
+            QPushButton {
+                background-color: #FFAA00; border-radius: 8px; font-weight: bold; min-height: 35px;
+            }
+            QPushButton:hover { background-color: #FFC04D; }
+            QLineEdit { background-color: #ffffff; border: 1px solid #D18B00; border-radius: 4px; padding: 5px; min-height: 30px; }
+            QComboBox { background-color: #D18B00; border-radius: 4px; padding: 5px; }
+            QLabel { font-size: 13px; }
         """)
 
-        layout = QGridLayout()
-        self.setLayout(layout)
-        layout.setAlignment(QtCore.Qt.AlignTop)
+        # main layout
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setSpacing(20)
+
+        # vyber mat
+        mat_group = QtWidgets.QGroupBox("Výběr materiálu")
+        mat_layout = QtWidgets.QHBoxLayout()
+        self.combo = QComboBox()
+        # combo se naplni datama
+        seznam_nazvu = [m["nazev"] for m in data["material"]]
+        self.combo.addItems(seznam_nazvu)
+        
+        self.btn_info = QtWidgets.QPushButton("Informace o mat.")
+        self.btn_info.clicked.connect(self.zobrazit_info)
+        
+        mat_layout.addWidget(QtWidgets.QLabel("Materiál:"))
+        mat_layout.addWidget(self.combo, 2) # Poměr 2 pro combobox
+        mat_layout.addWidget(self.btn_info, 1)
+        mat_group.setLayout(mat_layout)
+        main_layout.addWidget(mat_group)
+
+        # A
+        group_a = QtWidgets.QGroupBox("Cvičení A: Výpočet výsledné teploty")
+        layout_a = QtWidgets.QGridLayout()
+        
+        self.energie = QtWidgets.QLineEdit(); self.energie.setPlaceholderText("Joulů (J)")
+        self.vaha = QtWidgets.QLineEdit(); self.vaha.setPlaceholderText("Kilogramů (kg)")
+        self.poc_tepl = QtWidgets.QLineEdit(); self.poc_tepl.setPlaceholderText("Celsia (°C)")
+        self.vypoct = QtWidgets.QPushButton("VYPOČÍTAT VÝSLEDEK")
+        self.vypoct.clicked.connect(self.vypocitat)
+
+        layout_a.addWidget(QtWidgets.QLabel("Vstupní energie:"), 0, 0)
+        layout_a.addWidget(self.energie, 1, 0)
+        layout_a.addWidget(QtWidgets.QLabel("Hmotnost:"), 0, 1)
+        layout_a.addWidget(self.vaha, 1, 1)
+        layout_a.addWidget(QtWidgets.QLabel("Počáteční teplota:"), 0, 2)
+        layout_a.addWidget(self.poc_tepl, 1, 2)
+        layout_a.addWidget(self.vypoct, 2, 0, 1, 3) # pres 3 sloupce
+        
+        group_a.setLayout(layout_a)
+        main_layout.addWidget(group_a)
+
+        # B
+        group_b = QtWidgets.QGroupBox("Cvičení B: Výpočet potřebné energie")
+        layout_b = QtWidgets.QGridLayout()
+        
+        self.hmotnost2 = QtWidgets.QLineEdit(); self.hmotnost2.setPlaceholderText("kg")
+        self.poc_teplota2 = QtWidgets.QLineEdit(); self.poc_teplota2.setPlaceholderText("°C")
+        self.cilova_teplota = QtWidgets.QLineEdit(); self.cilova_teplota.setPlaceholderText("°C")
+        self.btn_vypocet_b = QtWidgets.QPushButton("SPOČÍTAT POTŘEBNOU ENERGII")
+        self.btn_vypocet_b.clicked.connect(self.vypocitat_b)
+
+        layout_b.addWidget(QtWidgets.QLabel("Hmotnost:"), 0, 0)
+        layout_b.addWidget(self.hmotnost2, 1, 0)
+        layout_b.addWidget(QtWidgets.QLabel("Počáteční teplota:"), 0, 1)
+        layout_b.addWidget(self.poc_teplota2, 1, 1)
+        layout_b.addWidget(QtWidgets.QLabel("Cílová teplota:"), 0, 2)
+        layout_b.addWidget(self.cilova_teplota, 1, 2)
+        layout_b.addWidget(self.btn_vypocet_b, 2, 0, 1, 3)
+
+        group_b.setLayout(layout_b)
+        main_layout.addWidget(group_b)
+
+        # sprava matra
+        main_layout.addStretch() # Toto odsune zbytek nahoru
+        self.button = QtWidgets.QPushButton("⚙ SPRÁVA MATERIÁLŮ")
+        self.button.setFixedWidth(200)
+        self.button.clicked.connect(self.test)
+        main_layout.addWidget(self.button, 0, QtCore.Qt.AlignCenter)
+
+        # Validatory
         regex = QRegularExpression(r"^[0-9]*\.?[0-9]*$")
         validator = QRegularExpressionValidator(regex)
-
-
-        #TLACITKA -------------------------------------
-
-        self.combo = QComboBox()
-        with open('data.json','r',encoding='UTF-8') as f:
-            data = json.load(f)
-            seznam_nazvu = [m["nazev"] for m in data["material"]]
-            self.combo.addItems(seznam_nazvu)
-
-
-        
-        self.button = QtWidgets.QPushButton("Sprava Mat.")
-        self.pole_napis = QtWidgets.QLabel("Material")
-        self.energie_napis = QtWidgets.QLabel("Vstupni energie")
-        self.vaha_napis = QtWidgets.QLabel("Vaha        ")
-        self.poc_tepl_napis = QtWidgets.QLabel("Pocatecni teplota")
-        self.debug1_napis = QtWidgets.QLabel("Vykonat")
-
-        self.energie = QtWidgets.QLineEdit()
-        self.vaha = QtWidgets.QLineEdit()
-        self.poc_tepl = QtWidgets.QLineEdit()
-        self.debug1 = QtWidgets.QPushButton("Vypocitat")
-        layout.setRowStretch(2, 1)
-
-        self.energie.setPlaceholderText("J")
-        self.poc_tepl.setPlaceholderText("°C")
-        self.vaha.setPlaceholderText("Kg")
-
-        self.poc_tepl.setObjectName("poc_tepl")
-
-
-
-        self.energie.setValidator(validator)
-        self.vaha.setValidator(validator)
-        self.poc_tepl.setValidator(validator)
-        # eventy
-
-        self.combo.currentIndexChanged.connect(self.zobrazit_info)
-        self.debug1.clicked.connect(self.vypocitat)
-        self.button.clicked.connect(self.test)
-
-
-
-        #layout
-        layout.addWidget(self.pole_napis, 0,0)
-        layout.addWidget(self.energie_napis,0,1)
-        layout.addWidget(self.vaha_napis,0,2)
-        layout.addWidget(self.poc_tepl_napis,0,3)
-        layout.addWidget(self.debug1_napis,0,4)
-        
-        layout.addWidget(self.combo,1,0)
-        layout.addWidget(self.energie,1,1)
-        layout.addWidget(self.vaha,1,2)
-        layout.addWidget(self.poc_tepl,1,3)
-        layout.addWidget(self.debug1,1,4)
-
-        layout.addWidget(self.button,3,4, QtCore.Qt.AlignBottom)
-
-
-
+        for field in [self.energie, self.vaha, self.poc_tepl, self.hmotnost2, self.poc_teplota2, self.cilova_teplota]:
+            field.setValidator(validator)
 
 
 
@@ -188,6 +178,10 @@ class hlavni_okno(QWidget):
             msg.setText("Zadejte platné číselné hodnoty pro energii, váhu a počáteční teplotu.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
+
+    def vypocitat_b(self):
+        index = self.combo.currentIndex()
+        print(index)
         
 
 
