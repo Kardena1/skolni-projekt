@@ -175,13 +175,29 @@ class hlavni_okno(QWidget):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setWindowTitle("Chyba")
-            msg.setText("Zadejte platné číselné hodnoty pro energii, váhu a počáteční teplotu.")
+            msg.setText("Zadejte platné číselné hodnoty.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
 
     def vypocitat_b(self):
-        index = self.combo.currentIndex()
-        print(index)
+        try: 
+            index = self.combo.currentIndex()
+            vybrany_material = data["material"][index]
+            celkova_energie = logika.vypocitat_b(vybrany_material,self.cilova_teplota.text(),self.hmotnost2.text(),self.poc_teplota2.text())
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Výsledek")
+            msg.setText(f"Potřebna energie: {celkova_energie} J")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except ValueError:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setText("Zadejte platné číselné hodnoty.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+
         
 
 
