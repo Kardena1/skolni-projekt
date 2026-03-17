@@ -51,6 +51,9 @@ class hlavni_okno(QWidget):
         mat_group = QtWidgets.QGroupBox("Výběr materiálu")
         mat_layout = QtWidgets.QHBoxLayout()
         self.combo = QComboBox()
+        self.combo.setEditable(True)
+        self.combo.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        self.combo.completer().setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
         # combo se naplni datama
         seznam_nazvu = [m["nazev"] for m in data["material"]]
         self.combo.addItems(seznam_nazvu)
