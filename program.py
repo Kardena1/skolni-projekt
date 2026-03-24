@@ -25,7 +25,9 @@ class hlavni_okno(QWidget):
     def __init__(self):
         super().__init__()
 
+
         self.setWindowTitle("Fyzikální Kalkulačka Materiálů")
+        self.setWindowIcon(QIcon('icon.png'))
         self.setFixedSize(600, 650)
         self.setStyleSheet("""
             QWidget { background-color: #FFDD99; color: #000000; font-family: sans-serif; }
