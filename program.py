@@ -162,6 +162,7 @@ class hlavni_okno(QWidget):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle("Informace")
+        msg.setWindowIcon(QIcon('icon.png'))
         msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
@@ -192,6 +193,7 @@ class hlavni_okno(QWidget):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setWindowTitle("Chyba")
+            msg.setWindowIcon(QIcon('icon.png'))
             msg.setText("Zadejte platné číselné hodnoty.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
@@ -211,6 +213,7 @@ class hlavni_okno(QWidget):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setWindowTitle("Chyba")
+            msg.setWindowIcon(QIcon('icon.png'))
             msg.setText("Zadejte platné číselné hodnoty.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
@@ -447,9 +450,11 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
+    
     # 2. Nastavíme ikonu celé APLIKACI (tohle ovlivňuje Taskbar)
     ikona_cesta = os.path.join(script_dir, 'icon.png')
     app.setWindowIcon(QIcon(ikona_cesta))
+
     
     # 3. Vytvoříme a ukážeme okno
     window = hlavni_okno()
