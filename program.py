@@ -14,14 +14,6 @@ from PyQt5.QtCore import QRegularExpression, Qt,QSize
 
 
 import logika
-
-if sys.platform == 'win32':
-    try:
-        myappid = 'vut.fyzikalni.kalkulacka.1.0' # Musí to být unikátní řetězec
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-    except Exception as e:
-        print(f"Chyba při nastavování ID aplikace: {e}")
-
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
 
@@ -55,6 +47,7 @@ class hlavni_okno(QWidget):
             QLineEdit { background-color: #ffffff; border: 1px solid #D18B00; border-radius: 4px; padding: 5px; min-height: 30px; }
             QComboBox { background-color: #D18B00; border-radius: 4px; padding: 5px; }
             QLabel { font-size: 13px; }
+            QMessageBox { background-color: #FFDD99}
         """)
 
         # main layout
@@ -163,9 +156,40 @@ class hlavni_okno(QWidget):
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle("Informace")
         msg.setWindowIcon(QIcon('icon.png'))
+        msg.setStyleSheet('QMessageBox { background-color: #FFDD99; }')
         msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
         msg.setStandardButtons(QMessageBox.Ok)
+        tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
+        tlacitko_tajne.setStyleSheet('background-color:#FFDD80;border:none;')
+
         msg.exec_()
+        if msg.clickedButton() == tlacitko_tajne:
+            self.otevrit_easter_egg()
+    def otevrit_easter_egg(self):
+            # 1. Vytvoření okna (uložíme do self, aby nezmizelo)
+            self.tajne_okno = QWidget() 
+            self.tajne_okno.setWindowTitle("Easter Egg!")
+            self.tajne_okno.setBaseSize(1000,600)
+            self.tajne_okno.setStyleSheet("background-color: black; color: lime;")
+
+            # 2. Nejdříve vytvoříme layout
+            main_layout = QtWidgets.QVBoxLayout()
+
+            # 3. Vytvoříme tlačítko a přidáme ho do layoutu
+            self.btn_easter = QtWidgets.QPushButton()
+            self.btn_easter.setIcon(QtGui.QIcon("icon.png"))
+            self.btn_easter.setIconSize(QtCore.QSize(1000, 500)) # Aby ikona nebyla prťavá
+            self.btn_easter.setStyleSheet("background-color: transparent; border: none;")
+            
+            main_layout.addWidget(self.btn_easter, 0, QtCore.Qt.AlignCenter)
+
+            # 4. TEPRVE TEĎ nastavíme layout oknu
+            self.tajne_okno.setLayout(main_layout)
+            
+            # 5. Zobrazíme
+            self.tajne_okno.show()
+            
+      
 
         
 
@@ -431,7 +455,9 @@ class pridani_materialu(QWidget):
             self.setMinimumSize(600, 300)
             self.resize(600, 300) 
             self.combosmazat.show()   
-            self.smazat.show()       
+            self.smazat.show()   
+
+  
 
     def oznameni(self, text):
         msg = QMessageBox()
@@ -443,24 +469,21 @@ class pridani_materialu(QWidget):
 
 
 
-# ... tvoje třídy hlavni_okno a pridani_materialu ...
+
 
 if __name__ == "__main__":
-    # 1. Vytvoříme aplikaci
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
     
-    # 2. Nastavíme ikonu celé APLIKACI (tohle ovlivňuje Taskbar)
     ikona_cesta = os.path.join(script_dir, 'icon.png')
     app.setWindowIcon(QIcon(ikona_cesta))
 
-    
-    # 3. Vytvoříme a ukážeme okno
+
     window = hlavni_okno()
     window.show()
     
-    # 4. Spustíme smyčku
+
     sys.exit(app.exec_())
 
 
