@@ -12,26 +12,26 @@ from PyQt5.QtCore import QRegularExpression, Qt,QSize
 
 
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-os.chdir(script_dir)
+
 import logika
 
-with open('data.json', 'r', encoding='utf-8') as file: # pro otevreni v cmd je potreba to otevrit absolutni cestou (c:/Users/wwtf8/Desktop/cviceni/zakaznicky_system/zakaznici_upd.py)
-    data = json.load(file)   
-    
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    
-    # Nastavení ikony pro celou aplikaci (nejen pro okno)
-    app.setWindowIcon(QIcon('icon.png'))
-    
-app.setStyle("Fusion")
+if sys.platform == 'win32':
+    try:
+        myappid = 'vut.fyzikalni.kalkulacka.1.0' # Musí to být unikátní řetězec
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    except Exception as e:
+        print(f"Chyba při nastavování ID aplikace: {e}")
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+# Načtení dat
 try:
-    myappid = 'fyzikalni.kalkulacka.v1' 
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    with open('data.json', 'r', encoding='utf-8') as file:
+        data = json.load(file)
 except Exception as e:
-    print("Nepodařilo se nastavit ID aplikace:", e)
+    print(f"Chyba při načítání JSON: {e}")
+    data = {"material": []}
 
 class hlavni_okno(QWidget):
     def __init__(self):
@@ -440,12 +440,23 @@ class pridani_materialu(QWidget):
 
 
 
+# ... tvoje třídy hlavni_okno a pridani_materialu ...
 
-
-
-okno_hlavni = hlavni_okno()
-okno_hlavni.show()
-sys.exit(app.exec())
+if __name__ == "__main__":
+    # 1. Vytvoříme aplikaci
+    app = QApplication(sys.argv)
+    app.setStyle("Fusion")
+    
+    # 2. Nastavíme ikonu celé APLIKACI (tohle ovlivňuje Taskbar)
+    ikona_cesta = os.path.join(script_dir, 'icon.png')
+    app.setWindowIcon(QIcon(ikona_cesta))
+    
+    # 3. Vytvoříme a ukážeme okno
+    window = hlavni_okno()
+    window.show()
+    
+    # 4. Spustíme smyčku
+    sys.exit(app.exec_())
 
 
 
