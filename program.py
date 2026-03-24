@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import ctypes
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap,QIcon,QRegularExpressionValidator
@@ -20,6 +21,12 @@ with open('data.json', 'r', encoding='utf-8') as file: # pro otevreni v cmd je p
     
 app = QApplication(sys.argv)
 app.setStyle("Fusion")
+
+try:
+    myappid = 'fyzikalni.kalkulacka.v1' 
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except Exception as e:
+    print("Nepodařilo se nastavit ID aplikace:", e)
 
 class hlavni_okno(QWidget):
     def __init__(self):
