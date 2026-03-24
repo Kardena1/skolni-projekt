@@ -19,7 +19,12 @@ import logika
 with open('data.json', 'r', encoding='utf-8') as file: # pro otevreni v cmd je potreba to otevrit absolutni cestou (c:/Users/wwtf8/Desktop/cviceni/zakaznicky_system/zakaznici_upd.py)
     data = json.load(file)   
     
-app = QApplication(sys.argv)
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    
+    # Nastavení ikony pro celou aplikaci (nejen pro okno)
+    app.setWindowIcon(QIcon('icon.png'))
+    
 app.setStyle("Fusion")
 
 try:
