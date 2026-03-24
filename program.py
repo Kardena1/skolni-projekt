@@ -158,9 +158,10 @@ class hlavni_okno(QWidget):
         msg.setWindowIcon(QIcon('icon.png'))
         msg.setStyleSheet('QMessageBox { background-color: #FFDD99; }')
         msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
-        msg.setStandardButtons(QMessageBox.Ok)
+
         tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
         tlacitko_tajne.setStyleSheet('background-color:#FFDD80;border:none;')
+        msg.setStandardButtons(QMessageBox.Ok)
 
         msg.exec_()
         if msg.clickedButton() == tlacitko_tajne:
@@ -419,6 +420,8 @@ class pridani_materialu(QWidget):
                     "skupenske_teplo_tani": self.l_tani.text(),
                     "skupenske_teplo_varu": self.l_varu.text()
                 }
+                if int(self.t_tani.text()) >= int(self.t_varu.text()):
+                    self.oznameni("Bod tání musí být menší než bod varu!")
 
                 self.hlavni_okno_ref.combo.addItem(self.nazev.text())
                 data["material"].append(novy_material)
