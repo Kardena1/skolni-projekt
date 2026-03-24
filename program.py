@@ -422,13 +422,17 @@ class pridani_materialu(QWidget):
                 }
                 if int(self.t_tani.text()) >= int(self.t_varu.text()):
                     self.oznameni("Bod tání musí být menší než bod varu!")
-
-                self.hlavni_okno_ref.combo.addItem(self.nazev.text())
-                data["material"].append(novy_material)
-                with open('data.json', 'w', encoding='utf-8') as file:
-                    json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
-                self.oznameni("Materiál byl úspěšně přidán.")
-                self.close()
+                elif int(self.c_kapalina.text()) <= int(self.c_pevne.text()):
+                    self.oznameni("Tepelná kapacita kapalné skupenství musí být větší než tepelná kapacita pevné skupenství!")
+                elif int(self.l_tani.text()) >= int(self.l_varu.text()):
+                    self.oznameni("Skupenské teplo tání musí být menší než skupenské teplo varu!")
+                else:
+                    self.hlavni_okno_ref.combo.addItem(self.nazev.text())
+                    data["material"].append(novy_material)
+                    with open('data.json', 'w', encoding='utf-8') as file:
+                        json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
+                    self.oznameni("Materiál byl úspěšně přidán.")
+                    self.close()
 
         else:
             self.oznameni("Vyplňte všechna pole!")
