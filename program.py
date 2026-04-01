@@ -9,9 +9,86 @@ from PyQt5.QtGui import QRegularExpressionValidator
 from PyQt5.QtCore import QRegularExpression, Qt,QSize
 
 
+NORMAL_STYLE_MAIN = """
+    QWidget { background-color: #FFDD99; color: #000000; font-family: sans-serif; }
+    hlavni_okno QGroupBox { 
+        font-weight: bold; border: 2px solid #D18B00; 
+        margin-top: 1.1em; border-radius: 5px; padding: 10px;
+    }
+    hlavni_okno QPushButton { background-color: #FFAA00; border-radius: 8px; font-weight: bold; min-height: 35px; }
+    hlavni_okno QLineEdit { background-color: #ffffff; border: 1px solid #D18B00; border-radius: 4px; padding: 5px; }
+    hlavni_okno QComboBox { background-color: #D18B00;  border-radius: 4px; padding: 5px; }
+    pridani_materialu    QWidget {
+            background-color: #FFDD99;                 
+        }
+    pridani_materialu    QPushButton {
+            font-size: 18px;
+            background-color: #FFAA00;
+        }
+    pridani_materialu    QLineEdit {
+            background-color: #FFAA00;
+            color: #ffffff;
+        }
+    nastaveni_okno QGroupBox { 
+        font-weight: bold; border: 2px solid #D18B00; 
+        margin-top: 1.1em; border-radius: 5px; padding: 10px;
+    }
+    nastaveni_okno QPushButton { background-color: #FFAA00; border-radius: 8px; font-weight: bold; min-height: 35px; }
+    nastaveni_okno QLineEdit { background-color: #ffffff; border: 1px solid #D18B00; border-radius: 4px; padding: 5px; }
+    nastaveni_okno QComboBox { background-color: #D18B00; color: #ffffff;  border-radius: 4px; padding: 5px; }
+"""
 
+BARVOSLEPY_STYLE = """
+/* GLOBÁLNÍ ZÁKLAD */
+    QWidget { background-color: #000000; color: #FFFFFF; font-family: sans-serif; }
 
+    /* HLAVNÍ OKNO */
+    hlavni_okno QGroupBox { 
+        font-weight: bold; border: 3px solid #FFFF00; 
+        margin-top: 1.1em; border-radius: 5px; padding: 10px; color: #FFFF00;
+    }
+    hlavni_okno QPushButton { background-color: #0055FF; border: 2px solid #FFFF00; color: #FFFFFF; font-weight: bold; min-height: 35px; }
+    hlavni_okno QLineEdit { background-color: #ffffff; color: #000000; border: 2px solid #FFFF00; border-radius: 4px; padding: 5px; }
+    hlavni_okno QComboBox { background-color: #FFFF00; color: #000000; border-radius: 4px; padding: 5px; font-weight: bold; }
 
+    /* PŘIDÁNÍ MATERIÁLU */
+    pridani_materialu QWidget {
+        background-color: #000000;                 
+    }
+    pridani_materialu QPushButton {
+        font-size: 18px;
+        background-color: #0055FF;
+        border: 2px solid #FFFF00;
+        color: #FFFFFF;
+    }
+    pridani_materialu QLineEdit {
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 2px solid #FFFF00;
+    }
+
+    /* NASTAVENÍ OKNO */
+    nastaveni_okno QGroupBox { 
+        font-weight: bold; border: 3px solid #FFFF00; 
+        margin-top: 1.1em; border-radius: 5px; padding: 10px; color: #FFFF00;
+    }
+    nastaveni_okno QPushButton { background-color: #0055FF; border: 2px solid #FFFF00; color: #FFFFFF; font-weight: bold; min-height: 35px; }
+    nastaveni_okno QLineEdit { background-color: #ffffff; color: #000000; border: 2px solid #FFFF00; border-radius: 4px; padding: 5px; }
+    nastaveni_okno QComboBox { background-color: #FFFF00; color: #000000; border-radius: 4px; padding: 5px; font-weight: bold; }
+
+    /* GLOBÁLNÍ MESSAGEBOX PRO SLEPÉ */
+    QMessageBox { background-color: #000000; border: 2px solid #FFFF00; }
+    QMessageBox QLabel { color: #FFFFFF; font-size: 16px; font-weight: bold; }
+    QMessageBox QPushButton { background-color: #0055FF; color: #FFFFFF; border: 2px solid #FFFF00; min-width: 80px; }
+"""
+
+# global funkce pro zmenu
+def aplikuj_vzhled(vzhled_jmeno):
+    app = QApplication.instance()
+    if vzhled_jmeno == "Barvoslepý":
+        app.setStyleSheet(BARVOSLEPY_STYLE)
+    else:
+        app.setStyleSheet(NORMAL_STYLE_MAIN)
 
 import logika
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -33,22 +110,9 @@ class hlavni_okno(QWidget):
         self.setWindowTitle("Fyzikální Kalkulačka Materiálů")
         self.setWindowIcon(QIcon('icon.png'))
         self.setFixedSize(600, 650)
-        self.setStyleSheet("""
-            QWidget { background-color: #FFDD99; color: #000000; font-family: sans-serif; }
-            QGroupBox { 
-                font-weight: bold; border: 2px solid #D18B00; 
-                margin-top: 1.1em; border-radius: 5px; padding: 10px;
-            }
-            QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 3px; }
-            QPushButton {
-                background-color: #FFAA00; border-radius: 8px; font-weight: bold; min-height: 35px;
-            }
-            QPushButton:hover { background-color: #FFC04D; }
-            QLineEdit { background-color: #ffffff; border: 1px solid #D18B00; border-radius: 4px; padding: 5px; min-height: 30px; }
-            QComboBox { background-color: #D18B00; border-radius: 4px; padding: 5px; }
-            QLabel { font-size: 13px; }
-            QMessageBox { background-color: #FFDD99}
-        """)
+        # self.setStyleSheet(NORMAL_STYLE_MAIN)
+
+                           
 
         # main layout
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -117,16 +181,28 @@ class hlavni_okno(QWidget):
         main_layout.addWidget(group_b)
 
         # sprava matra
+        layout_c = QtWidgets.QHBoxLayout()
         main_layout.addStretch() # Toto odsune zbytek nahoru
         self.button = QtWidgets.QPushButton("⚙ SPRÁVA MATERIÁLŮ")
         self.button.setFixedWidth(200)
         self.button.clicked.connect(self.test)
-        main_layout.addWidget(self.button, 0, QtCore.Qt.AlignCenter)
+        layout_c.addWidget(self.button, 0, QtCore.Qt.AlignLeft)
+
+        self.button1 = QtWidgets.QPushButton("⚙ Nastaveni") 
+        self.button1.setFixedWidth(200)
+
+        self.button1.clicked.connect(self.nastaveni)
+        layout_c.addWidget(self.button1,0,QtCore.Qt.AlignRight)
+        main_layout.addLayout(layout_c)
 
         # Validatory
+        regex_teplota = QRegularExpression(r"^-?\d*\.?\d*$")
+        self.teplota_validator = QRegularExpressionValidator(regex_teplota)
+        self.poc_tepl.setValidator(self.teplota_validator)
+
         regex = QRegularExpression(r"^[0-9]*\.?[0-9]*$")
         validator = QRegularExpressionValidator(regex)
-        for field in [self.energie, self.vaha, self.poc_tepl, self.hmotnost2, self.poc_teplota2, self.cilova_teplota]:
+        for field in [self.energie, self.vaha, self.hmotnost2, self.cilova_teplota]:
             field.setValidator(validator)
 
 
@@ -138,6 +214,11 @@ class hlavni_okno(QWidget):
     def test(self):
         self.pridani_materialu_okno = pridani_materialu(self)
         self.pridani_materialu_okno.show()
+
+    def nastaveni(self):
+        self.okno_nastaveni = nastaveni_okno(self)
+        self.okno_nastaveni.show()
+        
 
     def zobrazit_info(self):
         index = self.combo.currentIndex()
@@ -156,11 +237,10 @@ class hlavni_okno(QWidget):
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle("Informace")
         msg.setWindowIcon(QIcon('icon.png'))
-        msg.setStyleSheet('QMessageBox { background-color: #FFDD99; }')
         msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
 
         tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
-        tlacitko_tajne.setStyleSheet('background-color:#FFDD80;border:none;')
+        tlacitko_tajne.setStyleSheet('background-color:#FFDD50;border:none;')
         msg.setStandardButtons(QMessageBox.Ok)
 
         msg.exec_()
@@ -274,19 +354,7 @@ class pridani_materialu(QWidget):
         self.setWindowTitle("Pridani materialu")
         self.setMinimumSize(400, 300)
         self.setMaximumSize(400, 300)
-        self.setStyleSheet("""
-        QWidget {
-            background-color: #FFDD99;                 
-        }
-        QPushButton {
-            font-size: 18px;
-            background-color: #FFAA00;
-        }
-        QLineEdit {
-            background-color: #FFAA00;
-            color: #ffffff;
-        }
-        """)
+        # self.setStyleSheet(NORMAL_STYLE_MATERIAL)
 
 
 
@@ -296,6 +364,8 @@ class pridani_materialu(QWidget):
 
 
         validator = QIntValidator()
+        regex_teplota = QRegularExpression(r"^\d*\.?\d*$")
+        self.teplota_validator = QRegularExpressionValidator(regex_teplota)
 
 
         self.nazev_napis = QtWidgets.QLabel("Nazev materialu")
@@ -303,6 +373,7 @@ class pridani_materialu(QWidget):
         self.t_varu_napis = QtWidgets.QLabel("Bod varu")
         self.c_pevne_napis = QtWidgets.QLabel("Tepelná kapacita\n pevné skupenství")
         self.c_kapalina_napis = QtWidgets.QLabel("Tepelná kapacita\nkapalné skupenství")
+        self.t_kapacita_plyn = QtWidgets.QLabel("Tepelná kapacita\nplynne skupenstvi")
         self.l_tani_napis = QtWidgets.QLabel("Skup. teplo tání")
         self.l_varu_napis = QtWidgets.QLabel("Skup. teplo varu")
 
@@ -310,11 +381,12 @@ class pridani_materialu(QWidget):
         self.t_varu_napis_po = QtWidgets.QLabel("(°C)")
         self.c_pevne_napis_po = QtWidgets.QLabel("(J/kg°C)")
         self.c_kapalina_napis_po = QtWidgets.QLabel("(J/kg°C)")
+        
         self.l_tani_napis_po = QtWidgets.QLabel("(J/kg)")
         self.l_varu_napis_po = QtWidgets.QLabel("(J/kg)")
 
         self.btn_smazat = QtWidgets.QPushButton()
-        self.btn_smazat.setIcon(QIcon("kos.png"))
+        self.btn_smazat.setIcon(QIcon("trash.png"))
         self.btn_smazat.setIconSize(QSize(30, 30)) # Velikost ikony
         self.btn_smazat.setFixedSize(50, 50)
         self.btn_smazat.setStyleSheet("background-color: transparent; border: none; ")
@@ -474,6 +546,37 @@ class pridani_materialu(QWidget):
         msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 
+class nastaveni_okno(QWidget):
+    def __init__(self, hlavni_okno_ref):
+        super().__init__()
+        self.hlavni_okno_ref = hlavni_okno_ref
+        self.setWindowTitle("Nastavení vzhledu")
+        self.setFixedSize(300, 150)
+        
+        layout = QtWidgets.QVBoxLayout(self)
+        
+        layout.addWidget(QtWidgets.QLabel("Vyberte režim zobrazení:"))
+        
+        self.combo_vzhled = QComboBox()
+        self.combo_vzhled.addItems(["Normální", "Barvoslepý"])
+        
+        # Nastavíme combo na aktuální styl aplikace
+        aktuatni_qss = QApplication.instance().styleSheet()
+        if "background-color: #000000" in aktuatni_qss:
+            self.combo_vzhled.setCurrentIndex(1)
+            
+        self.combo_vzhled.currentIndexChanged.connect(self.zmena_stylu)
+        layout.addWidget(self.combo_vzhled)
+        
+        self.btn_zavrit = QtWidgets.QPushButton("Hotovo")
+        self.btn_zavrit.clicked.connect(self.close)
+        layout.addWidget(self.btn_zavrit)
+
+    def zmena_stylu(self):
+        vybrano = self.combo_vzhled.currentText()
+        aplikuj_vzhled(vybrano)
+
+    
 
 
 
@@ -482,15 +585,12 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
     
+    # Nastavíme výchozí styl hned při startu pro celou aplikaci
+    app.setStyleSheet(NORMAL_STYLE_MAIN)
     
-    ikona_cesta = os.path.join(script_dir, 'icon.png')
-    app.setWindowIcon(QIcon(ikona_cesta))
-
-
     window = hlavni_okno()
     window.show()
     
-
     sys.exit(app.exec_())
 
 

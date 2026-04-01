@@ -7,51 +7,57 @@ with open('data.json', 'r', encoding='utf-8') as file: # pro otevreni v cmd je p
     data = json.load(file)   
 
 def vypocitat_a(data, energie, vaha, poc_teplot):
-    # Převod na čísla (nechej vše float, je to jistota)
-    energie, vaha, poc_teplot = float(energie), float(vaha), float(poc_teplot)
+    energie = float(energie)
+    vaha = float(vaha)
+    t_aktualni = float(poc_teplot)
     
+    # Načtení konstant z JSON
     bod_tani = float(data['bod_tani'])
     bod_varu = float(data['bod_varu'])
     tep_kap_pev = float(data['tepelna_kapacita_pevne'])
     tep_kap_kapal = float(data['tepelna_kapacita_kapalina'])
+    tep_kap_plyn = float(data.get('tepelna_kapacita_plyn', 0)) # Nové
     skup_tani = float(data['skupenske_teplo_tani'])
     skup_varu = float(data['skupenske_teplo_varu'])
-    
-    zbytek_energie = energie
-    t_aktualni = poc_teplot
 
-    # 1. FÁZE: Ohřev pevné látky k bodu tání
+    zbytek_energie = energie
+
+    # 1. Ohřev pevné látky
     if t_aktualni < bod_tani:
-        potreba_ohrev_tani = vaha * tep_kap_pev * (bod_tani - t_aktualni)
-        if zbytek_energie <= potreba_ohrev_tani:
-            t_vysledna = t_aktualni + (zbytek_energie / (vaha * tep_kap_pev))
-            return round(t_vysledna, 2), "Pevne skupenstvi"
-        
-        zbytek_energie -= potreba_ohrev_tani
+        potreba = vaha * tep_kap_pev * (bod_tani - t_aktualni)
+        if zbytek_energie <= potreba:
+            return t_aktualni + (zbytek_energie / (vaha * tep_kap_pev)), "Pevné"
+        zbytek_energie -= potreba
         t_aktualni = bod_tani
 
-    # 2. FÁZE: Tání (přeměna pevné látky na kapalinu)
-    potreba_skup_tani = vaha * skup_tani
-    if zbytek_energie <= potreba_skup_tani:
-        return bod_tani, "Smes pevne/kapalne (tani)"
-    
-    zbytek_energie -= potreba_skup_tani
-    # Teď je z toho 100% kapalina na bodu tání
+    # 2. Tání (fázová přeměna)
+    if t_aktualni == bod_tani:
+        potreba = vaha * skup_tani
+        if zbytek_energie <= potreba:
+            return t_aktualni, f"Tání (roztaveno {(zbytek_energie/potreba)*100:.1f} %)"
+        zbytek_energie -= potreba
 
-    # 3. FÁZE: Ohřev kapaliny k bodu varu
-    potreba_ohrev_var = vaha * tep_kap_kapal * (bod_varu - t_aktualni)
-    if zbytek_energie <= potreba_ohrev_var:
-        t_vysledna = t_aktualni + (zbytek_energie / (vaha * tep_kap_kapal))
-        return round(t_vysledna, 2), "Kapalne skupenstvi"   
-    
-    zbytek_energie -= potreba_ohrev_var
+    # 3. Ohřev kapaliny
+    if t_aktualni < bod_varu:
+        potreba = vaha * tep_kap_kapal * (bod_varu - t_aktualni)
+        if zbytek_energie <= potreba:
+            return t_aktualni + (zbytek_energie / (vaha * tep_kap_kapal)), "Kapalné"
+        zbytek_energie -= potreba
+        t_aktualni = bod_varu
 
-    # 4. FÁZE: Var (přeměna na plyn)
-    potreba_na_vypar = vaha * skup_varu
-    if zbytek_energie <= potreba_na_vypar:
-        return bod_varu, "Smes kapalne/plyn (var)"
+    # 4. Var (fázová přeměna na plyn)
+    if t_aktualni == bod_varu:
+        potreba = vaha * skup_varu
+        if zbytek_energie <= potreba:
+            return t_aktualni, f"Var (vypařeno {(zbytek_energie/potreba)*100:.1f} %)"
+        zbytek_energie -= potreba
+
+    # 5. Ohřev plynu (pokud zbyla energie)
+    if tep_kap_plyn > 0:
+        t_final = t_aktualni + (zbytek_energie / (vaha * tep_kap_plyn))
+        return t_final, "Plynné"
     
-    return bod_varu, "Plynne skupenstvi"
+    return t_aktualni, "Plynné (kapacita plynu neznámá)"
 
 def vypocitat_b(data, cilova_teplota, vaha, poc_teplot):
     # Převod na čísla
