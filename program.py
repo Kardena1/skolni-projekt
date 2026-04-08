@@ -4,9 +4,9 @@ import json
 import ctypes
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QGridLayout,QComboBox,QMessageBox
-from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap,QIcon,QRegularExpressionValidator
+from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap,QIcon,QRegularExpressionValidator,QRegExpValidator,QDoubleValidator
 from PyQt5.QtGui import QRegularExpressionValidator
-from PyQt5.QtCore import QRegularExpression, Qt,QSize
+from PyQt5.QtCore import QRegularExpression, Qt,QSize, QRegExp
 
 
 NORMAL_STYLE_MAIN = """
@@ -199,10 +199,12 @@ class hlavni_okno(QWidget):
         regex_teplota = QRegularExpression(r"^-?\d*\.?\d*$")
         self.teplota_validator = QRegularExpressionValidator(regex_teplota)
         self.poc_tepl.setValidator(self.teplota_validator)
+        self.poc_teplota2.setValidator(self.teplota_validator)
+        self.cilova_teplota.setValidator(self.teplota_validator)
 
         regex = QRegularExpression(r"^[0-9]*\.?[0-9]*$")
         validator = QRegularExpressionValidator(regex)
-        for field in [self.energie, self.vaha, self.hmotnost2, self.cilova_teplota]:
+        for field in [self.energie, self.vaha, self.hmotnost2]:
             field.setValidator(validator)
 
 
@@ -218,34 +220,39 @@ class hlavni_okno(QWidget):
     def nastaveni(self):
         self.okno_nastaveni = nastaveni_okno(self)
         self.okno_nastaveni.show()
+
+    
         
 
     def zobrazit_info(self):
-        index = self.combo.currentIndex()
+        if self.combo.currentIndex() != -1:
+            index = self.combo.currentIndex()
 
-        data1 = data["material"][index]
+            data1 = data["material"][index]
 
-        nazev = data1["nazev"]
-        bod_tani = float(data1['bod_tani'])
-        bod_varu = float(data1['bod_varu'])
-        tep_kap_pev = float(data1['tepelna_kapacita_pevne'])
-        tep_kap_kapal = float(data1['tepelna_kapacita_kapalina'])
-        skup_tani = float(data1['skupenske_teplo_tani'])
-        skup_varu = float(data1['skupenske_teplo_varu'])
+            nazev = data1["nazev"]
+            bod_tani = float(data1['bod_tani'])
+            bod_varu = float(data1['bod_varu'])
+            tep_kap_pev = float(data1['tepelna_kapacita_pevne'])
+            tep_kap_kapal = float(data1['tepelna_kapacita_kapalina'])
+            skup_tani = float(data1['skupenske_teplo_tani'])
+            skup_varu = float(data1['skupenske_teplo_varu'])
 
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle("Informace")
-        msg.setWindowIcon(QIcon('icon.png'))
-        msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Informace")
+            msg.setWindowIcon(QIcon('icon.png'))
+            msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
 
-        tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
-        tlacitko_tajne.setStyleSheet('background-color:#FFDD50;border:none;')
-        msg.setStandardButtons(QMessageBox.Ok)
+            tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
+            tlacitko_tajne.setStyleSheet('background-color:#FFDD50;border:none;')
+            msg.setStandardButtons(QMessageBox.Ok)
 
-        msg.exec_()
-        if msg.clickedButton() == tlacitko_tajne:
-            self.otevrit_easter_egg()
+            msg.exec_()
+            if msg.clickedButton() == tlacitko_tajne:
+                self.otevrit_easter_egg()
+        else:
+            self.chyba_material()
     def otevrit_easter_egg(self):
             # 1. Vytvoření okna (uložíme do self, aby nezmizelo)
             self.tajne_okno = QWidget() 
@@ -283,43 +290,92 @@ class hlavni_okno(QWidget):
 
 
     def vypocitat(self):
-        try: 
-            index = self.combo.currentIndex()
-            vybrany_material = data["material"][index]
+        vaha_val = float(self.vaha.text())
+        if vaha_val == 0:
+            
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Oznameni")
+                msg.setText(f"Hmotnost nesmi byt nula!")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+        else:
+            
 
-            teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setWindowTitle("Výsledek")
-            msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
-        except ValueError:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Chyba")
-            msg.setWindowIcon(QIcon('icon.png'))
-            msg.setText("Zadejte platné číselné hodnoty.")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+            if self.combo.currentIndex() != -1:
+
+                try: 
+                    index = self.combo.currentIndex()
+                    vybrany_material = data["material"][index]
+
+                    teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle("Výsledek")
+                    msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
+                except ValueError:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setWindowTitle("Chyba")
+                    msg.setWindowIcon(QIcon('icon.png'))
+                    msg.setText("Zadejte platné číselné hodnoty.")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
+            else:
+                self.chyba_material()
+
+            
 
     def vypocitat_b(self):
-        try: 
-            index = self.combo.currentIndex()
-            vybrany_material = data["material"][index]
-            celkova_energie = logika.vypocitat_b(vybrany_material,self.cilova_teplota.text(),self.hmotnost2.text(),self.poc_teplota2.text())
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setWindowTitle("Výsledek")
-            msg.setText(f"Potřebna energie: {celkova_energie} J")
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
-        except ValueError:
+        vaha_val = float(self.hmotnost2.text())
+        if vaha_val == 0:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Oznameni")
+                msg.setText(f"Hmotnost nesmi byt nula!")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+        else:
+
+            if self.combo.currentIndex() != -1:
+                try: 
+                    index = self.combo.currentIndex()
+                    vybrany_material = data["material"][index]
+                    celkova_energie = logika.vypocitat_b(vybrany_material,self.cilova_teplota.text(),self.hmotnost2.text(),self.poc_teplota2.text())
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle("Výsledek")
+                    msg.setText(f"Potřebna energie: {celkova_energie} J")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
+                except ValueError:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setWindowTitle("Chyba")
+                    msg.setWindowIcon(QIcon('icon.png'))
+                    msg.setText("Zadejte platné číselné hodnoty.")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Chyba")
+                msg.setWindowIcon(QIcon('icon.png'))
+                msg.setText("Neni material. Pridejte material do dat.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+
+
+    
+
+    def chyba_material(self):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setWindowTitle("Chyba")
             msg.setWindowIcon(QIcon('icon.png'))
-            msg.setText("Zadejte platné číselné hodnoty.")
+            msg.setText("Neni material. Pridejte material do dat.")
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
 
@@ -349,11 +405,12 @@ class hlavni_okno(QWidget):
 class pridani_materialu(QWidget):
     def __init__(self, hlavni_okno_ref):
         super().__init__()
+        
 
         self.hlavni_okno_ref = hlavni_okno_ref
         self.setWindowTitle("Pridani materialu")
-        self.setMinimumSize(400, 300)
-        self.setMaximumSize(400, 300)
+        self.setMinimumSize(500, 400)
+        self.setMaximumSize(500, 400)
         # self.setStyleSheet(NORMAL_STYLE_MATERIAL)
 
 
@@ -363,9 +420,7 @@ class pridani_materialu(QWidget):
         layout.setAlignment(QtCore.Qt.AlignLeft)
 
 
-        validator = QIntValidator()
-        regex_teplota = QRegularExpression(r"^\d*\.?\d*$")
-        self.teplota_validator = QRegularExpressionValidator(regex_teplota)
+
 
 
         self.nazev_napis = QtWidgets.QLabel("Nazev materialu")
@@ -381,6 +436,7 @@ class pridani_materialu(QWidget):
         self.t_varu_napis_po = QtWidgets.QLabel("(°C)")
         self.c_pevne_napis_po = QtWidgets.QLabel("(J/kg°C)")
         self.c_kapalina_napis_po = QtWidgets.QLabel("(J/kg°C)")
+        self.c_plyn_napis_po = QtWidgets.QLabel("(J/kg°C)")
         
         self.l_tani_napis_po = QtWidgets.QLabel("(J/kg)")
         self.l_varu_napis_po = QtWidgets.QLabel("(J/kg)")
@@ -405,6 +461,7 @@ class pridani_materialu(QWidget):
         self.t_varu = QtWidgets.QLineEdit()
         self.c_pevne = QtWidgets.QLineEdit()
         self.c_kapalina = QtWidgets.QLineEdit()
+        self.c_plyn = QtWidgets.QLineEdit()
         self.l_tani = QtWidgets.QLineEdit()
         self.l_varu = QtWidgets.QLineEdit()
 
@@ -413,18 +470,23 @@ class pridani_materialu(QWidget):
         self.l_tani.setFixedWidth(150)
         self.c_kapalina.setFixedWidth(150)
         self.c_pevne.setFixedWidth(150)
+        self.c_plyn.setFixedWidth(150)
         self.t_varu.setFixedWidth(150)
         self.t_tani.setFixedWidth(150)
 
 
         self.button = QtWidgets.QPushButton("Přidat")
+        regex_cslo = QRegularExpression(r"^-?\d*\.?\d*$")
+        validator1 = QRegularExpressionValidator(regex_cslo)
 
-        self.t_tani.setValidator(validator)
-        self.t_varu.setValidator(validator)
-        self.c_pevne.setValidator(validator)
-        self.c_kapalina.setValidator(validator)
-        self.l_tani.setValidator(validator)
-        self.l_varu.setValidator(validator)
+
+        self.t_tani.setValidator(validator1)
+        self.t_varu.setValidator(validator1)
+        self.c_pevne.setValidator(validator1)
+        self.c_kapalina.setValidator(validator1)
+        self.c_plyn.setValidator(validator1)
+        self.l_tani.setValidator(validator1)
+        self.l_varu.setValidator(validator1)
 
         layout.addWidget(self.btn_smazat,0,2)
 
@@ -434,24 +496,27 @@ class pridani_materialu(QWidget):
         layout.addWidget(self.t_varu_napis,3,0)
         layout.addWidget(self.c_pevne_napis,4,0)
         layout.addWidget(self.c_kapalina_napis,5,0)
-        layout.addWidget(self.l_tani_napis,6,0)
-        layout.addWidget(self.l_varu_napis,7,0)
+        layout.addWidget(self.t_kapacita_plyn,6,0)
+        layout.addWidget(self.l_tani_napis,7,0)
+        layout.addWidget(self.l_varu_napis,8,0)
 
         layout.addWidget(self.t_tani_napis_po,2,2)
         layout.addWidget(self.t_varu_napis_po,3,2)
         layout.addWidget(self.c_pevne_napis_po,4,2)
         layout.addWidget(self.c_kapalina_napis_po,5,2)
-        layout.addWidget(self.l_tani_napis_po,6,2)
-        layout.addWidget(self.l_varu_napis_po,7,2)
+        layout.addWidget(self.c_plyn_napis_po,6,2)
+        layout.addWidget(self.l_tani_napis_po,7,2)
+        layout.addWidget(self.l_varu_napis_po,8,2)
 
         layout.addWidget(self.nazev,1,1)   
         layout.addWidget(self.t_tani,2,1)
         layout.addWidget(self.t_varu,3,1)
         layout.addWidget(self.c_pevne,4,1)
         layout.addWidget(self.c_kapalina,5,1)
-        layout.addWidget(self.l_tani,6,1)
-        layout.addWidget(self.l_varu,7,1) 
-        layout.addWidget(self.button,8,2,QtCore.Qt.AlignRight)
+        layout.addWidget(self.c_plyn,6,1)
+        layout.addWidget(self.l_tani,7,1)
+        layout.addWidget(self.l_varu,8,1) 
+        layout.addWidget(self.button,9,2,QtCore.Qt.AlignRight)
         layout.setColumnStretch(3, 1)
         layout.setRowStretch(9, 1)
 
@@ -478,61 +543,74 @@ class pridani_materialu(QWidget):
         # c_kapalina = float(input("Zadej měrnou tepelnou kapacitu - kapalné skupenství (J/kg°C): "))
         # l_tani = float(input("Zadej měrné skupenské teplo tání (J/kg): "))
         # l_varu = float(input("Zadej měrné skupenské teplo varu (J/kg): "))
-        if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.l_tani.text() and self.l_varu.text():
+        if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.c_plyn.text() and self.l_tani.text() and self.l_varu.text():
             if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
                 self.oznameni("Materiál s tímto názvem již existuje!")
 
             else:
-                novy_material = {
-                    "nazev": self.nazev.text(),
-                    "bod_tani": self.t_tani.text(),
-                    "bod_varu": self.t_varu.text(),
-                    "tepelna_kapacita_pevne": self.c_pevne.text(),
-                    "tepelna_kapacita_kapalina": self.c_kapalina.text(),
-                    "skupenske_teplo_tani": self.l_tani.text(),
-                    "skupenske_teplo_varu": self.l_varu.text()
-                }
-                if int(self.t_tani.text()) >= int(self.t_varu.text()):
-                    self.oznameni("Bod tání musí být menší než bod varu!")
-                elif int(self.c_kapalina.text()) <= int(self.c_pevne.text()):
-                    self.oznameni("Tepelná kapacita kapalné skupenství musí být větší než tepelná kapacita pevné skupenství!")
-                elif int(self.l_tani.text()) >= int(self.l_varu.text()):
-                    self.oznameni("Skupenské teplo tání musí být menší než skupenské teplo varu!")
+                if self.t_tani.text() or self.t_varu.text() or self.c_pevne.text() or self.c_kapalina.text() or self.c_plyn.text() or self.l_tani.text() or self.l_varu.text() == "-":
+                    print("chyba")
                 else:
-                    self.hlavni_okno_ref.combo.addItem(self.nazev.text())
-                    data["material"].append(novy_material)
-                    with open('data.json', 'w', encoding='utf-8') as file:
-                        json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
-                    self.oznameni("Materiál byl úspěšně přidán.")
-                    self.close()
+                    novy_material = {   
+                        "nazev": self.nazev.text(),
+                        "bod_tani": self.t_tani.text(),
+                        "bod_varu": self.t_varu.text(),
+                        "tepelna_kapacita_pevne": self.c_pevne.text(),
+                        "tepelna_kapacita_kapalina": self.c_kapalina.text(),
+                        "tepelna_kapacita_plyn":self.c_plyn.text(),
+                        "skupenske_teplo_tani": self.l_tani.text(),
+                        "skupenske_teplo_varu": self.l_varu.text()
+                    }
+                    if int(self.t_tani.text()) >= int(self.t_varu.text()):
+                        self.oznameni("Bod tání musí být menší než bod varu!")
+                    elif int(self.c_kapalina.text()) <= int(self.c_pevne.text()):
+                        self.oznameni("Tepelná kapacita kapalné skupenství musí být větší než tepelná kapacita pevné skupenství!")
+                    elif int(self.l_tani.text()) >= int(self.l_varu.text()):
+                        self.oznameni("Skupenské teplo tání musí být menší než skupenské teplo varu!")
+                    else:
+                        self.hlavni_okno_ref.combo.addItem(self.nazev.text())
+                        data["material"].append(novy_material)
+                        with open('data.json', 'w', encoding='utf-8') as file:
+                            json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
+                        self.oznameni("Materiál byl úspěšně přidán.")
+                        self.close()
 
         else:
             self.oznameni("Vyplňte všechna pole!")
 
     def smazani_materialu(self):
-        index = self.combosmazat.currentIndex()
-        vybrany_material = data["material"][index]
-        data["material"].remove(vybrany_material)
-        with open('data.json', 'w', encoding='utf-8') as file:
-            json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
-        self.hlavni_okno_ref.combo.removeItem(index)
-        self.hlavni_okno_ref.combo.setCurrentIndex(0)
-        self.combosmazat.removeItem(index)
-        self.combosmazat.setCurrentIndex(0)
-        self.oznameni("Materiál byl úspěšně smazán.")
-        self.close()  
+        if self.combosmazat.currentIndex() != -1:
+            index = self.combosmazat.currentIndex()
+            vybrany_material = data["material"][index]
+            data["material"].remove(vybrany_material)
+            with open('data.json', 'w', encoding='utf-8') as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)  # ulozeni zpet do souboru
+            self.hlavni_okno_ref.combo.removeItem(index)
+            self.hlavni_okno_ref.combo.setCurrentIndex(0)
+            self.combosmazat.removeItem(index)
+            self.combosmazat.setCurrentIndex(0)
+            self.oznameni("Materiál byl úspěšně smazán.")
+            self.close()  
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setWindowIcon(QIcon('icon.png'))
+            msg.setText("Neni material. Pridejte material do dat.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
 
     def rozsireni(self,__init__):
         if self.combosmazat.isVisible():
-            self.setMinimumSize(400, 300)
-            self.setMaximumSize(400, 300)
+            self.setMinimumSize(500, 400)
+            self.setMaximumSize(500, 400)
             self.combosmazat.hide()
             self.smazat.hide()
             self.resize(400, 300)
         else:
-            self.setMaximumSize(600, 300)
-            self.setMinimumSize(600, 300)
-            self.resize(600, 300) 
+            self.setMaximumSize(700, 400)
+            self.setMinimumSize(700, 400)
+            self.resize(700, 400) 
             self.combosmazat.show()   
             self.smazat.show()   
 

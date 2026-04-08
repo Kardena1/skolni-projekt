@@ -1,144 +1,163 @@
 {
-  "material": [
-    {
-      "nazev": "Voda (Led)",
-      "bod_tani": 0,
-      "bod_varu": 100,
-      "tepelna_kapacita_pevne": 2100,
-      "tepelna_kapacita_kapalina": 4180,
-      "tepelna_kapacita_plyn": 2020,
-      "skupenske_teplo_tani": 334000,
-      "skupenske_teplo_varu": 2260000
-    },
-    {
-      "nazev": "Železo",
-      "bod_tani": 1538,
-      "bod_varu": 2862,
-      "tepelna_kapacita_pevne": 450,
-      "tepelna_kapacita_kapalina": 820,
-      "tepelna_kapacita_plyn": 250,
-      "skupenske_teplo_tani": 289000,
-      "skupenske_teplo_varu": 6340000
-    },
-    {
-      "nazev": "Hliník",
-      "bod_tani": 660,
-      "bod_varu": 2519,
-      "tepelna_kapacita_pevne": 897,
-      "tepelna_kapacita_kapalina": 1090,
-      "tepelna_kapacita_plyn": 530,
-      "skupenske_teplo_tani": 397000,
-      "skupenske_teplo_varu": 10780000
-    },
-    {
-      "nazev": "Měď",
-      "bod_tani": 1085,
-      "bod_varu": 2562,
-      "tepelna_kapacita_pevne": 385,
-      "tepelna_kapacita_kapalina": 490,
-      "tepelna_kapacita_plyn": 240,
-      "skupenske_teplo_tani": 205000,
-      "skupenske_teplo_varu": 4730000
-    },
-    {
-      "nazev": "Olovo",
-      "bod_tani": 327,
-      "bod_varu": 1749,
-      "tepelna_kapacita_pevne": 129,
-      "tepelna_kapacita_kapalina": 150,
-      "tepelna_kapacita_plyn": 100,
-      "skupenske_teplo_tani": 23000,
-      "skupenske_teplo_varu": 858000
-    },
-    {
-      "nazev": "Ethanol",
-      "bod_tani": -114,
-      "bod_varu": 78,
-      "tepelna_kapacita_pevne": 970,
-      "tepelna_kapacita_kapalina": 2460,
-      "tepelna_kapacita_plyn": 1700,
-      "skupenske_teplo_tani": 108000,
-      "skupenske_teplo_varu": 846000
-    },
-    {
-      "nazev": "Rtuť",
-      "bod_tani": -39,
-      "bod_varu": 357,
-      "tepelna_kapacita_pevne": 140,
-      "tepelna_kapacita_kapalina": 140,
-      "tepelna_kapacita_plyn": 104,
-      "skupenske_teplo_tani": 11000,
-      "skupenske_teplo_varu": 294000
-    },
-    {
-      "nazev": "Zlato",
-      "bod_tani": 1064,
-      "bod_varu": 2856,
-      "tepelna_kapacita_pevne": 129,
-      "tepelna_kapacita_kapalina": 150,
-      "tepelna_kapacita_plyn": 60,
-      "skupenske_teplo_tani": 63000,
-      "skupenske_teplo_varu": 1645000
-    },
-    {
-      "nazev": "Stříbro",
-      "bod_tani": 962,
-      "bod_varu": 2162,
-      "tepelna_kapacita_pevne": 235,
-      "tepelna_kapacita_kapalina": 310,
-      "tepelna_kapacita_plyn": 160,
-      "skupenske_teplo_tani": 113000,
-      "skupenske_teplo_varu": 2330000
-    },
-    {
-      "nazev": "Mangan",
-      "bod_tani": 1246,
-      "bod_varu": 2061,
-      "tepelna_kapacita_pevne": 479,
-      "tepelna_kapacita_kapalina": 700,
-      "tepelna_kapacita_plyn": 220,
-      "skupenske_teplo_tani": 221000,
-      "skupenske_teplo_varu": 4050000
-    },
-    {
-      "nazev": "Berylium",
-      "bod_tani": 1287,
-      "bod_varu": 2469,
-      "tepelna_kapacita_pevne": 1825,
-      "tepelna_kapacita_kapalina": 2200,
-      "tepelna_kapacita_plyn": 1200,
-      "skupenske_teplo_tani": 1357000,
-      "skupenske_teplo_varu": 32400000
-    },
-    {
-      "nazev": "Palladium",
-      "bod_tani": 1555,
-      "bod_varu": 2963,
-      "tepelna_kapacita_pevne": 244,
-      "tepelna_kapacita_kapalina": 300,
-      "tepelna_kapacita_plyn": 150,
-      "skupenske_teplo_tani": 157000,
-      "skupenske_teplo_varu": 3290000
-    },
-    {
-      "nazev": "Wolfram",
-      "bod_tani": 3422,
-      "bod_varu": 5555,
-      "tepelna_kapacita_pevne": 134,
-      "tepelna_kapacita_kapalina": 250,
-      "tepelna_kapacita_plyn": 110,
-      "skupenske_teplo_tani": 192000,
-      "skupenske_teplo_varu": 4270000
-    },
-    {
-      "nazev": "Titan",
-      "bod_tani": 1668,
-      "bod_varu": 3287,
-      "tepelna_kapacita_pevne": 523,
-      "tepelna_kapacita_kapalina": 750,
-      "tepelna_kapacita_plyn": 300,
-      "skupenske_teplo_tani": 310000,
-      "skupenske_teplo_varu": 8800000
-    }
-  ]
+    "material": [
+        {
+            "nazev": "Voda (Led)",
+            "bod_tani": 0,
+            "bod_varu": 100,
+            "tepelna_kapacita_pevne": 2100,
+            "tepelna_kapacita_kapalina": 4180,
+            "tepelna_kapacita_plyn": 2020,
+            "skupenske_teplo_tani": 334000,
+            "skupenske_teplo_varu": 2260000
+        },
+        {
+            "nazev": "Železo",
+            "bod_tani": 1538,
+            "bod_varu": 2862,
+            "tepelna_kapacita_pevne": 450,
+            "tepelna_kapacita_kapalina": 820,
+            "tepelna_kapacita_plyn": 250,
+            "skupenske_teplo_tani": 289000,
+            "skupenske_teplo_varu": 6340000
+        },
+        {
+            "nazev": "Hliník",
+            "bod_tani": 660,
+            "bod_varu": 2519,
+            "tepelna_kapacita_pevne": 897,
+            "tepelna_kapacita_kapalina": 1090,
+            "tepelna_kapacita_plyn": 530,
+            "skupenske_teplo_tani": 397000,
+            "skupenske_teplo_varu": 10780000
+        },
+        {
+            "nazev": "Měď",
+            "bod_tani": 1085,
+            "bod_varu": 2562,
+            "tepelna_kapacita_pevne": 385,
+            "tepelna_kapacita_kapalina": 490,
+            "tepelna_kapacita_plyn": 240,
+            "skupenske_teplo_tani": 205000,
+            "skupenske_teplo_varu": 4730000
+        },
+        {
+            "nazev": "Olovo",
+            "bod_tani": 327,
+            "bod_varu": 1749,
+            "tepelna_kapacita_pevne": 129,
+            "tepelna_kapacita_kapalina": 150,
+            "tepelna_kapacita_plyn": 100,
+            "skupenske_teplo_tani": 23000,
+            "skupenske_teplo_varu": 858000
+        },
+        {
+            "nazev": "Ethanol",
+            "bod_tani": -114,
+            "bod_varu": 78,
+            "tepelna_kapacita_pevne": 970,
+            "tepelna_kapacita_kapalina": 2460,
+            "tepelna_kapacita_plyn": 1700,
+            "skupenske_teplo_tani": 108000,
+            "skupenske_teplo_varu": 846000
+        },
+        {
+            "nazev": "Rtuť",
+            "bod_tani": -39,
+            "bod_varu": 357,
+            "tepelna_kapacita_pevne": 140,
+            "tepelna_kapacita_kapalina": 140,
+            "tepelna_kapacita_plyn": 104,
+            "skupenske_teplo_tani": 11000,
+            "skupenske_teplo_varu": 294000
+        },
+        {
+            "nazev": "Zlato",
+            "bod_tani": 1064,
+            "bod_varu": 2856,
+            "tepelna_kapacita_pevne": 129,
+            "tepelna_kapacita_kapalina": 150,
+            "tepelna_kapacita_plyn": 60,
+            "skupenske_teplo_tani": 63000,
+            "skupenske_teplo_varu": 1645000
+        },
+        {
+            "nazev": "Stříbro",
+            "bod_tani": 962,
+            "bod_varu": 2162,
+            "tepelna_kapacita_pevne": 235,
+            "tepelna_kapacita_kapalina": 310,
+            "tepelna_kapacita_plyn": 160,
+            "skupenske_teplo_tani": 113000,
+            "skupenske_teplo_varu": 2330000
+        },
+        {
+            "nazev": "Mangan",
+            "bod_tani": 1246,
+            "bod_varu": 2061,
+            "tepelna_kapacita_pevne": 479,
+            "tepelna_kapacita_kapalina": 700,
+            "tepelna_kapacita_plyn": 220,
+            "skupenske_teplo_tani": 221000,
+            "skupenske_teplo_varu": 4050000
+        },
+        {
+            "nazev": "Berylium",
+            "bod_tani": 1287,
+            "bod_varu": 2469,
+            "tepelna_kapacita_pevne": 1825,
+            "tepelna_kapacita_kapalina": 2200,
+            "tepelna_kapacita_plyn": 1200,
+            "skupenske_teplo_tani": 1357000,
+            "skupenske_teplo_varu": 32400000
+        },
+        {
+            "nazev": "Palladium",
+            "bod_tani": 1555,
+            "bod_varu": 2963,
+            "tepelna_kapacita_pevne": 244,
+            "tepelna_kapacita_kapalina": 300,
+            "tepelna_kapacita_plyn": 150,
+            "skupenske_teplo_tani": 157000,
+            "skupenske_teplo_varu": 3290000
+        },
+        {
+            "nazev": "Wolfram",
+            "bod_tani": 3422,
+            "bod_varu": 5555,
+            "tepelna_kapacita_pevne": 134,
+            "tepelna_kapacita_kapalina": 250,
+            "tepelna_kapacita_plyn": 110,
+            "skupenske_teplo_tani": 192000,
+            "skupenske_teplo_varu": 4270000
+        },
+        {
+            "nazev": "Titan",
+            "bod_tani": 1668,
+            "bod_varu": 3287,
+            "tepelna_kapacita_pevne": 523,
+            "tepelna_kapacita_kapalina": 750,
+            "tepelna_kapacita_plyn": 300,
+            "skupenske_teplo_tani": 310000,
+            "skupenske_teplo_varu": 8800000
+        },
+        {
+            "nazev": "kafe",
+            "bod_tani": "31",
+            "bod_varu": "255",
+            "tepelna_kapacita_pevne": "-1",
+            "tepelna_kapacita_kapalina": "30",
+            "skupenske_teplo_tani": "-2",
+            "skupenske_teplo_varu": "0"
+        },
+        {
+            "nazev": "Nice",
+            "bod_tani": "1",
+            "bod_varu": "2",
+            "tepelna_kapacita_pevne": "3",
+            "tepelna_kapacita_kapalina": "4",
+            "tepelna_kapacita_plyn": "5",
+            "skupenske_teplo_tani": "6",
+            "skupenske_teplo_varu": "7"
+        }
+    ]
 }
