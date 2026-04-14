@@ -379,29 +379,6 @@ class hlavni_okno(QWidget):
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
 
-        
-
-
-
-
-    # def debugs(self):
-
-    #     index = self.combo.currentIndex()
-    #     vybrany_material = data["material"][index]
-
-    #     tani = vybrany_material["bod_tani"]
-    #     varu = vybrany_material["bod_varu"]
-    #     tep_kapacita_pevne = vybrany_material["tepelna_kapacita_pevne"]
-    #     tep_kapacita_kapalina = vybrany_material["tepelna_kapacita_kapalina"]
-    #     skupenske_teplo_tani = vybrany_material["skupenske_teplo_tani"]
-    #     skupenske_teplo_varu = vybrany_material["skupenske_teplo_varu"]
-
-    #     vysl = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
-
-    #     print(f" Nazev materialu: {vybrany_material['nazev']}\n Bod tani: {tani}\n Bod varu: {varu}\n Merna kapacita: {tep_kapacita_pevne}\n Testovy vysledek: {vysl}\n Zadana energie: {self.energie.text()}\n Zadana vaha: {self.vaha.text()}\n Zadana teplota: {self.poc_tepl.text()} \n test: {int(varu)-int(tani)}")
-    #     print("test2:", float(self.energie.text())/(float(self.vaha.text())*int(self.poc_tepl.text())))
-    #     print(f"test3: {vysl}")
-
 class pridani_materialu(QWidget):
     def __init__(self, hlavni_okno_ref):
         super().__init__()
@@ -536,13 +513,7 @@ class pridani_materialu(QWidget):
 
 
     def pridani_materialu(self):
-        # nazev = input("Zadej název materiálu: ")
-        # t_tani = float(input("Zadej bod tání (°C): "))
-        # t_varu = float(input("Zadej bod varu (°C): "))
-        # c_pevne = float(input("Zadej měrnou tepelnou kapacitu - pevné skupenství (J/kg°C): "))
-        # c_kapalina = float(input("Zadej měrnou tepelnou kapacitu - kapalné skupenství (J/kg°C): "))
-        # l_tani = float(input("Zadej měrné skupenské teplo tání (J/kg): "))
-        # l_varu = float(input("Zadej měrné skupenské teplo varu (J/kg): "))
+
         if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.c_plyn.text() and self.l_tani.text() and self.l_varu.text():
             if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
                 self.oznameni("Materiál s tímto názvem již existuje!")
