@@ -290,82 +290,100 @@ class hlavni_okno(QWidget):
 
 
     def vypocitat(self):
-        vaha_val = float(self.vaha.text())
-        if vaha_val == 0:
-            
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle("Oznameni")
-                msg.setText(f"Hmotnost nesmi byt nula!")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
-        else:
-            
-
-            if self.combo.currentIndex() != -1:
-
-                try: 
-                    index = self.combo.currentIndex()
-                    vybrany_material = data["material"][index]
-
-                    teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+        if self.energie.text() and self.vaha.text() and self.poc_tepl.text():
+            vaha_val = float(self.vaha.text())
+            if vaha_val == 0:
+                
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Information)
-                    msg.setWindowTitle("Výsledek")
-                    msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
-                    msg.setStandardButtons(QMessageBox.Ok)
-                    msg.exec_()
-                except ValueError:
-                    msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Warning)
-                    msg.setWindowTitle("Chyba")
-                    msg.setWindowIcon(QIcon('icon.png'))
-                    msg.setText("Zadejte platné číselné hodnoty.")
+                    msg.setWindowTitle("Oznameni")
+                    msg.setText(f"Hmotnost nesmi byt nula!")
                     msg.setStandardButtons(QMessageBox.Ok)
                     msg.exec_()
             else:
-                self.chyba_material()
+                
+
+                if self.combo.currentIndex() != -1:
+
+                    try: 
+                        index = self.combo.currentIndex()
+                        vybrany_material = data["material"][index]
+
+                        teplota, skupenstvi = logika.vypocitat_a(vybrany_material,self.energie.text(),self.vaha.text(),self.poc_tepl.text())
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Information)
+                        msg.setWindowTitle("Výsledek")
+                        msg.setText(f"Výsledná teplota: {teplota} °C\nSkupenství: {skupenstvi}")
+                        msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec_()
+                    except ValueError:
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Warning)
+                        msg.setWindowTitle("Chyba")
+                        msg.setWindowIcon(QIcon('icon.png'))
+                        msg.setText("Zadejte platné číselné hodnoty.")
+                        msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec_()
+                else:
+                    self.chyba_material()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setWindowIcon(QIcon('icon.png'))
+            msg.setText("Zadejte platné číselné hodnoty.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
 
             
 
     def vypocitat_b(self):
-        vaha_val = float(self.hmotnost2.text())
-        if vaha_val == 0:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle("Oznameni")
-                msg.setText(f"Hmotnost nesmi byt nula!")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
-        else:
-
-            if self.combo.currentIndex() != -1:
-                try: 
-                    index = self.combo.currentIndex()
-                    vybrany_material = data["material"][index]
-                    celkova_energie = logika.vypocitat_b(vybrany_material,self.cilova_teplota.text(),self.hmotnost2.text(),self.poc_teplota2.text())
+        if self.hmotnost2.text() and self.poc_teplota2.text() and self.cilova_teplota.text():
+            vaha_val = float(self.hmotnost2.text())
+            if vaha_val == 0:
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Information)
-                    msg.setWindowTitle("Výsledek")
-                    msg.setText(f"Potřebna energie: {celkova_energie} J")
+                    msg.setWindowTitle("Oznameni")
+                    msg.setText(f"Hmotnost nesmi byt nula!")
                     msg.setStandardButtons(QMessageBox.Ok)
                     msg.exec_()
-                except ValueError:
+            else:
+
+                if self.combo.currentIndex() != -1:
+                    try: 
+                        index = self.combo.currentIndex()
+                        vybrany_material = data["material"][index]
+                        celkova_energie = logika.vypocitat_b(vybrany_material,self.cilova_teplota.text(),self.hmotnost2.text(),self.poc_teplota2.text())
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Information)
+                        msg.setWindowTitle("Výsledek")
+                        msg.setText(f"Potřebna energie: {celkova_energie} J")
+                        msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec_()
+                    except ValueError:
+                        msg = QMessageBox()
+                        msg.setIcon(QMessageBox.Warning)
+                        msg.setWindowTitle("Chyba")
+                        msg.setWindowIcon(QIcon('icon.png'))
+                        msg.setText("Zadejte platné číselné hodnoty.")
+                        msg.setStandardButtons(QMessageBox.Ok)
+                        msg.exec_()
+                else:
                     msg = QMessageBox()
                     msg.setIcon(QMessageBox.Warning)
                     msg.setWindowTitle("Chyba")
                     msg.setWindowIcon(QIcon('icon.png'))
-                    msg.setText("Zadejte platné číselné hodnoty.")
+                    msg.setText("Neni material. Pridejte material do dat.")
                     msg.setStandardButtons(QMessageBox.Ok)
                     msg.exec_()
-            else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Warning)
-                msg.setWindowTitle("Chyba")
-                msg.setWindowIcon(QIcon('icon.png'))
-                msg.setText("Neni material. Pridejte material do dat.")
-                msg.setStandardButtons(QMessageBox.Ok)
-                msg.exec_()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle("Chyba")
+            msg.setWindowIcon(QIcon('icon.png'))
+            msg.setText("Zadejte platné číselné hodnoty.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
 
 
     
