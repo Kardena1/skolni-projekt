@@ -1,16 +1,6 @@
 {
     "material": [
         {
-            "nazev": "Voda (Led)",
-            "bod_tani": 0,
-            "bod_varu": 100,
-            "tepelna_kapacita_pevne": 2100,
-            "tepelna_kapacita_kapalina": 4180,
-            "tepelna_kapacita_plyn": 2020,
-            "skupenske_teplo_tani": 334000,
-            "skupenske_teplo_varu": 2260000
-        },
-        {
             "nazev": "Železo",
             "bod_tani": 1538,
             "bod_varu": 2862,

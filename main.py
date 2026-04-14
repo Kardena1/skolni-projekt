@@ -513,7 +513,6 @@ class pridani_materialu(QWidget):
 
 
     def pridani_materialu(self):
-
         if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.c_plyn.text() and self.l_tani.text() and self.l_varu.text():
             if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
                 self.oznameni("Materiál s tímto názvem již existuje!")
