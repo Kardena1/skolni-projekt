@@ -148,6 +148,16 @@
             "tepelna_kapacita_plyn": "5",
             "skupenske_teplo_tani": "6",
             "skupenske_teplo_varu": "7"
+        },
+        {
+            "nazev": "dwajdia",
+            "bod_tani": "0",
+            "bod_varu": "1",
+            "tepelna_kapacita_pevne": "2",
+            "tepelna_kapacita_kapalina": "3",
+            "tepelna_kapacita_plyn": "4",
+            "skupenske_teplo_tani": "5",
+            "skupenske_teplo_varu": "67"
         }
     ]
 }

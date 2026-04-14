@@ -531,13 +531,19 @@ class pridani_materialu(QWidget):
 
 
     def pridani_materialu(self):
-        if self.nazev.text() and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.c_plyn.text() and self.l_tani.text() and self.l_varu.text():
+        if self.nazev.text()  and self.t_tani.text() and self.t_varu.text() and self.c_pevne.text() and self.c_kapalina.text() and self.c_plyn.text() and self.l_tani.text() and self.l_varu.text():
             if  self.nazev.text() in [m["nazev"] for m in data["material"]]:
                 self.oznameni("Materiál s tímto názvem již existuje!")
 
             else:
-                if self.t_tani.text() or self.t_varu.text() or self.c_pevne.text() or self.c_kapalina.text() or self.c_plyn.text() or self.l_tani.text() or self.l_varu.text() == "-":
-                    print("chyba")
+                if self.t_tani.text() == "-" or self.t_varu.text() == "-" or self.c_pevne.text()== "-" or self.c_kapalina.text()== "-" or self.c_plyn.text()== "-" or self.l_tani.text()== "-" or self.l_varu.text() == "-":
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setWindowTitle("Chyba")
+                    msg.setWindowIcon(QIcon('icon.png'))
+                    msg.setText("Zadejte platné číselné hodnoty.")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
                 else:
                     novy_material = {   
                         "nazev": self.nazev.text(),
