@@ -158,6 +158,16 @@
             "tepelna_kapacita_plyn": "4",
             "skupenske_teplo_tani": "5",
             "skupenske_teplo_varu": "67"
+        },
+        {
+            "nazev": "černý",
+            "bod_tani": "-1000",
+            "bod_varu": "5000000",
+            "tepelna_kapacita_pevne": "-67",
+            "tepelna_kapacita_kapalina": "67",
+            "tepelna_kapacita_plyn": "6767",
+            "skupenske_teplo_tani": "850",
+            "skupenske_teplo_varu": "1200"
         }
     ]
 }

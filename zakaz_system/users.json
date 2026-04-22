@@ -1,0 +1,32 @@
+{
+    "admin": {
+        "id": 0,
+        "password": "heslo",
+        "role": "admin"
+    },
+    "adms": {
+        "id": 3,
+        "password": "123",
+        "role": "zakaznik"
+    },
+    "odmin": {
+        "id": 4,
+        "password": "123",
+        "role": "zakaznik"
+    },
+    "Imagine": {
+        "id": 5,
+        "password": "youareagoat",
+        "role": "zakaznik"
+    }, 
+    "Radmin": {
+        "id": 7,
+        "password": "123456",
+        "role": "zakaznik"
+    },
+    "Radim": {
+        "id": 8,
+        "password": "123123",
+        "role": "zakaznik"
+    }
+}

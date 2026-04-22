@@ -235,6 +235,7 @@ class hlavni_okno(QWidget):
             bod_varu = float(data1['bod_varu'])
             tep_kap_pev = float(data1['tepelna_kapacita_pevne'])
             tep_kap_kapal = float(data1['tepelna_kapacita_kapalina'])
+            tep_kap_plyn = float(data1['tepelna_kapacita_plyn'])
             skup_tani = float(data1['skupenske_teplo_tani'])
             skup_varu = float(data1['skupenske_teplo_varu'])
 
@@ -242,7 +243,7 @@ class hlavni_okno(QWidget):
             msg.setIcon(QMessageBox.Information)
             msg.setWindowTitle("Informace")
             msg.setWindowIcon(QIcon('icon.png'))
-            msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nSkupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
+            msg.setText(f"Název materiálu: {nazev}\nBod tání: {bod_tani} °C\nBod varu: {bod_varu} °C\nTepelná kapacita pevné skupenství: {tep_kap_pev} J/kg°C\nTepelná kapacita kapalné skupenství: {tep_kap_kapal} J/kg°C\nTepelná kapacita plynne skupenství: {tep_kap_plyn} J/kg°C\n Skupenské teplo tání: {skup_tani} J/kg\nSkupenské teplo varu: {skup_varu} J/kg")
 
             tlacitko_tajne = msg.addButton("", QMessageBox.ActionRole)
             tlacitko_tajne.setStyleSheet('background-color:#FFDD50;border:none;')
@@ -294,12 +295,12 @@ class hlavni_okno(QWidget):
             vaha_val = float(self.vaha.text())
             if vaha_val == 0:
                 
-                    msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Information)
-                    msg.setWindowTitle("Oznameni")
-                    msg.setText(f"Hmotnost nesmi byt nula!")
-                    msg.setStandardButtons(QMessageBox.Ok)
-                    msg.exec_()
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Oznameni")
+                msg.setText(f"Hmotnost nesmi byt nula!")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
             else:
                 
 
