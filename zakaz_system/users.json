@@ -1,32 +1,72 @@
 {
-    "admin": {
-        "id": 0,
-        "password": "heslo",
-        "role": "admin"
-    },
-    "adms": {
-        "id": 3,
-        "password": "123",
-        "role": "zakaznik"
-    },
-    "odmin": {
-        "id": 4,
-        "password": "123",
-        "role": "zakaznik"
-    },
-    "Imagine": {
-        "id": 5,
-        "password": "youareagoat",
-        "role": "zakaznik"
-    }, 
-    "Radmin": {
-        "id": 7,
-        "password": "123456",
-        "role": "zakaznik"
-    },
-    "Radim": {
-        "id": 8,
-        "password": "123123",
-        "role": "zakaznik"
-    }
+       "user_1": {
+              "id": 1,
+              "username": "123",
+              "jmeno": "123",
+              "prijmeni": "123",
+              "telefon": "123",
+              "firma": "123",
+              "password": "1231",
+              "role": "zakaznik"
+       },
+       "user_2": {
+              "id": 2,
+              "username": "Administrator",
+              "jmeno": "Admin",
+              "prijmeni": "Admin",
+              "telefon": "Admin",
+              "firma": "Admin",
+              "password": "heslo",
+              "role": "zakaznik"
+       },
+       "user_3": {
+              "id": 3,
+              "username": "kska",
+              "jmeno": "max",
+              "prijmeni": "koks",
+              "telefon": "+420773126461",
+              "firma": "Solomcik s.r.o",
+              "password": "qwasQWAS",
+              "role": "zakaznik"
+       },
+       "user_4": {
+              "id": 4,
+              "username": "ksks",
+              "jmeno": "kaka",
+              "prijmeni": "solosk",
+              "telefon": "+420773126461",
+              "firma": "CSAD",
+              "password": "s",
+              "role": "admin"
+       },
+       "user_5": {
+              "id": 5,
+              "username": "richrd",
+              "jmeno": "richrd",
+              "prijmeni": "rica",
+              "telefon": "+420213131231",
+              "firma": "kladno s.r.o",
+              "password": "richrd",
+              "role": "admin"
+       },
+       "user_6": {
+              "id": 6,
+              "username": "rada",
+              "jmeno": "radam",
+              "prijmeni": "start",
+              "telefon": "+420331321321",
+              "firma": "rada s.r.o",
+              "password": "rada",
+              "role": "admin"
+       },
+       "user_7": {
+              "id": 7,
+              "username": "kubas",
+              "jmeno": "jakubas",
+              "prijmeni": "zrno",
+              "telefon": "+4203123414214",
+              "firma": "zanehlik s.r.o",
+              "password": "zrno",
+              "role": "zakaznik"
+       }
 }
