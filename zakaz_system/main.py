@@ -4,7 +4,7 @@ import json
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QHBoxLayout, QPushButton, QLabel, QStackedWidget,
-                             QListWidget, QTableWidget, QHeaderView, QTableWidgetItem,
+                             QListWidget,QListWidgetItem, QTableWidget, QHeaderView, QTableWidgetItem,
                              QLineEdit, QDialog, QMessageBox,QGroupBox)
 from PyQt5.QtCore import Qt, QRegularExpression,QSize
 from PyQt5.QtGui import QPalette, QColor, QIntValidator, QPixmap,QIcon,QRegularExpressionValidator,QRegExpValidator,QDoubleValidator
@@ -27,11 +27,12 @@ NORMAL_STYLE_MAIN = """
                 color: #D1D5DB;
                 border: none;
                 padding-top: 20px;
+                padding-left:20px;
                 outline: 0;
             }
             QListWidget::item {
                 padding: 15px 20px;
-                border-bottom: 1px solid #374151;
+
             }
             QListWidget::item:hover {
                 background-color: #374151;
@@ -85,15 +86,15 @@ NORMAL_STYLE_MAIN = """
                 background-color: #FFFFFF;
                 border: none;
                 border-radius: 10px;
-            }                     
+            }
+            QMessageBox QLabel{
+                color: white;
+            }
         """
 
 data = []
 script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(script_dir)
-
-# with open("data.json",'r') as file:
-#     data = json.load(file)
     
 # ==========================================
 # 1. PŘIHLAŠOVACÍ OKNO
@@ -258,26 +259,35 @@ class AuthDialog(QDialog):
 
 
     def handle_login(self):
-        u = self.login_user.text()
-        passw = self.login_password.text()
+        try:
+            u = self.login_user.text()
+            passw = self.login_password.text()
 
-        self.db_file = "users.json"
+            self.db_file = "users.json"
 
-        with open(self.db_file,'r') as file:
-            data = json.load(file)
-        
-        for user_data in data.values():
-            if user_data.get("username") == u:
-                found_user = user_data
-                break
-        if found_user:
-            if found_user.get("password") == passw:
-                jmeno = found_user.get("jmeno")
-                self.user_role = found_user.get("role")
-                self.user_id = found_user.get("id")
-                self.final_username = u
-                self.final_name = jmeno
-                self.accept()
+            with open(self.db_file,'r') as file:
+                data = json.load(file)
+            
+            for user_data in data.values():
+                if user_data.get("username") == u:
+                    found_user = user_data
+                    break
+            if found_user:
+                if found_user.get("password") == passw:
+                    jmeno = found_user.get("jmeno")
+                    self.user_role = found_user.get("role")
+                    self.user_id = found_user.get("id")
+                    self.final_username = u
+                    self.final_name = jmeno
+                    self.accept()
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Oznameni")
+            msg.setText(f"Neplatne prihlasovaci udaje.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+
                 
 
              
@@ -328,42 +338,30 @@ class AuthDialog(QDialog):
         }
 
         # prepis souboru
-        with open(self.db_file, 'w', encoding="utf-8") as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)    
-    # def handle_register(self):
-    #     print("hello world")
-    #     u = self.reg_user_name.text()
-    #     p = self.reg_user_pass.text()
-    #     p_ver = self.reg_user_ver.text()
-
-    #     self.db_file = "users.json"
-
-    #     with open(self.db_file,'r') as file:
-    #         data = json.load(file)
-
-    #         users_db = {}
-
-    #         username = u
-    #         users_db[username] = {
-    #             "id": len(users_db),
-    #             "password": p,
-    #             "role": "zakaznik"
-    #         }
-
-    #         with open(self.db_file,'a') as file:
-    #             json.dump(users_db,file,indent=4, ensure_ascii=False)
-                
+        if jmen == "" or prijm == "" or telefon == "" or firma == "" or u == "" or p == "":
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Oznameni")
+            msg.setText(f"Nezadali jste vsechny udaje.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+            return
         
+        for polozka in data.values():
+            jmeno = polozka.get("username")
+            if jmeno == u:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Oznameni")
+                msg.setText(f"Uzivatelske jmeno uz existuje.")
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec_()
+                return
 
-        # if u in data:
-        #         msg = QMessageBox()
-        #         msg.setIcon(QMessageBox.Information)
-        #         msg.setWindowTitle("Oznameni")
-        #         msg.setText(f"Toto uzivatelske jmeno uz existuje.")
-        #         msg.setStandardButtons(QMessageBox.Ok)
-        #         msg.exec_()
-            
-
+        
+        
+        with open(self.db_file, 'w', encoding="utf-8") as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
 
     def make_password_visible(self,*inputs):
         if self.echomode == 0:
@@ -410,6 +408,9 @@ class AuthDialog(QDialog):
             
         
 
+# ================================
+#             ADMIN OKNO
+# ================================
         
 
         
@@ -439,10 +440,19 @@ class AdminSystemMockup(QMainWindow):
             "Správa uživatelů",
             "Přehled zakázek",
             "Statistiky",
-            "Logy"
+            "Logy",
         ]
         self.sidebar.addItems(menu_items)
+        spacer = QListWidgetItem()
+        for i in range(5):
+            name = "spacer"+f"{i}"
+            name = QListWidgetItem()
+            name.setFlags(QtCore.Qt.ItemFlag.NoItemFlags)
+            self.sidebar.addItem(name)
+        self.sidebar.addItem("Nastaveni")
+        self.sidebar.addItem("Odhlasit")
         self.sidebar.currentRowChanged.connect(self.switch_page)
+        self.sidebar.itemClicked.connect(self.handle_sidebar_click)
         main_layout.addWidget(self.sidebar)
 
         self.pages = QStackedWidget()
@@ -457,6 +467,23 @@ class AdminSystemMockup(QMainWindow):
 
         self.sidebar.setCurrentRow(0)
 
+    
+    def logout_action(self):
+        odpoved = QMessageBox.question(
+            self, "Odhlášení", "Opravdu se chcete odhlásit?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if odpoved == QMessageBox.StandardButton.Yes:
+            self.close() # Tímto vyskočíš z app.exec() v main loopu a objeví se login
+
+        
+
+
+    def handle_sidebar_click(self,item):
+        text = item.text()
+        if text == "Odhlasit":
+            self.logout_action()
 
     def switch_page(self,index):
         self.pages.setCurrentIndex(index)
@@ -491,6 +518,44 @@ class AdminSystemMockup(QMainWindow):
         combo.addItems(["zakaznik", "admin"])
         self.table.setCellWidget(row_position, 7, combo)
 
+    def delete_user(self):
+        current_row = self.table.currentRow()
+
+        if current_row <0:
+            QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdrive vyberte uzivatele, ktereho chcete smazat.")
+            return
+            
+        username = self.table.item(current_row,1).text()
+
+        odpoved = QtWidgets.QMessageBox.question(
+            self,
+            "Podtvrdit smazani",
+            f"opravdu chcete smazat uzivatele {username}?",
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+            )
+        
+        if odpoved == QtWidgets.QMessageBox.StandardButton.Yes:
+            self.table.removeRow(current_row)
+            self.save_custommer_data()
+            QtWidgets.QMessageBox.information(self, "Hotovo", "Uzivatel byl smazan.")
+
+
+    def oznamit_zmenu(self,index,combo):
+
+        if combo.itemText(index) == "admin":
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Potvrzení změny role")
+            msg.setText("Opravdu chcete tomuto uživateli přidělit práva ADMINA?")
+            msg.setStyleSheet("color:white;")
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok | 
+                                   QtWidgets.QMessageBox.StandardButton.Cancel)
+            
+            vysledek = msg.exec()
+
+            if vysledek == QMessageBox.StandardButton.Cancel:
+                combo.setCurrentIndex(0)
+
     def load_custommer_data(self):
         if not os.path.exists(self.user_file):
             with open(self.user_file,'w',encoding="utf-8") as f:
@@ -510,6 +575,7 @@ class AdminSystemMockup(QMainWindow):
 
             aktualni_role = polozka.get("role","zakaznik")
             combo.setCurrentText(aktualni_role)
+            combo.currentIndexChanged.connect(lambda index,c=combo: self.oznamit_zmenu(index,c))
             
             id_item = QTableWidgetItem(str(polozka.get("id", "")))
             username_item = QTableWidgetItem(str(polozka.get("username","")))
@@ -560,6 +626,15 @@ class AdminSystemMockup(QMainWindow):
                 "role": vybrana_role
             }
 
+        if username_val == "" or jmeno_val == "" or prijmeni_val == "" or telefon_val == "" or firma_val == "" or password_val == "":
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setWindowTitle("Oznameni")
+            msg.setText(f"Nezadali jste vsechny udaje.")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+            return
+        
         with open(self.user_file,'w',encoding="utf-8") as file:
             json.dump(new_data,file,indent=7)
 
@@ -570,72 +645,179 @@ class AdminSystemMockup(QMainWindow):
     def create_customers_list_page(self):
         page = QWidget()
         self.customer_layout = QVBoxLayout(page)
-        self.customer_layout.addWidget(QLabel(f"Vitejte"))
+        self.grid_button_layout = QtWidgets.QGridLayout()
 
 
         self.table = QTableWidget(0,8)
         self.table.setHorizontalHeaderLabels(["ID","Username","Jmeno","Prijmeni",'Telefonni Cislo','Firma','Heslo','role'])
         # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.setFixedWidth(750)
+        self.table.setFixedWidth(700)
 
-        for i in range(7):
+        for i in range(1,7):
             self.table.setColumnWidth(i,200)
+        
 
-        self.load_data_button = QPushButton("klikni na me")
+        self.load_data_button = QPushButton("Obnovit tabulku")
         self.load_data_button.clicked.connect(self.load_custommer_data)
-        self.load_data_button.setFixedWidth(200)
-        self.customer_layout.addWidget(self.load_data_button)
+        self.load_data_button.setFixedWidth(165)
+        self.grid_button_layout.addWidget(self.load_data_button,0,0)
 
 
 
         self.save_data_button = QPushButton("Ulozit zmeny")
         self.save_data_button.clicked.connect(self.save_custommer_data)
-        self.save_data_button.setFixedWidth(200)
-        self.customer_layout.addWidget(self.save_data_button)
+        self.save_data_button.setFixedWidth(165)
+        self.grid_button_layout.addWidget(self.save_data_button,0,1)
 
-        self.add_new_row_button = QPushButton("Přidat nového uživatele")
+        self.add_new_row_button = QPushButton("Přidat uživatele")
         self.add_new_row_button.clicked.connect(self.add_blank_row)
-        self.add_new_row_button.setFixedWidth(200)
-        self.customer_layout.addWidget(self.add_new_row_button)
+        self.add_new_row_button.setFixedWidth(165)
+        self.grid_button_layout.addWidget(self.add_new_row_button,0,2)
 
-
-
+        self.delete_custommer_button = QPushButton("Smazat uzivatele")
+        self.delete_custommer_button.clicked.connect(self.delete_user)
+        self.delete_custommer_button.setFixedWidth(165)
+        self.grid_button_layout.addWidget(self.delete_custommer_button,0,3)
 
         self.customer_layout.addWidget(self.table)
-        self.customer_layout.addStretch()
-
-
-        # self.main_grid_layout = QtWidgets.QGridLayout()
-        # self.grid_layout1 = QtWidgets.QGridLayout()
-        # self.grid_layout1.setObjectName("Gridlayout1")
-        # self.grid_layout1.addWidget(QLabel("test1"), 0, 0)
-        # self.grid_layout1.addWidget(QLabel("test2"), 0, 1)
-        # self.grid_layout1.addWidget(QLabel("test3"), 1, 0)
-        # self.grid_layout1.addWidget(QLabel("test4"), 1, 1)
-        # container = QtWidgets.QWidget()
-        # container.setObjectName("MojeOblast")
-        # container.setLayout(self.grid_layout1)
-
-        # self.grid_layout2 = QtWidgets.QGridLayout()
-        # self.grid_layout2.addWidget(QLabel("test1"),0,0)
-        # self.grid_layout2.addWidget(QLabel("test2"),0,1)
-        # self.grid_layout2.addWidget(QLabel("test3"),1,0)
-        # self.grid_layout2.addWidget(QLabel("test4"),1,1)
-
-        # self.main_grid_layout.addWidget(container, 0, 0)
-        # self.customer_layout.addLayout(self.main_grid_layout)
-
-
+        self.customer_layout.addLayout(self.grid_button_layout)
+        # self.customer_layout.addStretch()
 
         self.pages.addWidget(page)
 
-        
+# ============================================================================================================================================================================
+
+    def load_user_orders(self):
+            try:
+                with open("orders.json", "r", encoding="utf-8") as f:
+                    all_orders_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+
+                self.table1.setRowCount(0)
+                return
+
+            self.table1.setRowCount(0)
+
+            for key, data in all_orders_data.items():
+                    row_position = self.table1.rowCount()
+                    self.table1.insertRow(row_position)
+                    
+                    self.table1.setItem(row_position, 0, QTableWidgetItem(str(data.get("id", ""))))
+                    self.table1.setItem(row_position, 1, QTableWidgetItem(str(data.get("user_id", ""))))
+                    self.table1.setItem(row_position, 2, QTableWidgetItem(str(data.get("produkt", ""))))
+                    self.table1.setItem(row_position, 3, QTableWidgetItem(str(data.get("pocet", "0"))))
+                    self.table1.setItem(row_position, 4, QTableWidgetItem(str(data.get("description", ""))))
+                    self.table1.setItem(row_position, 5, QTableWidgetItem(str(data.get("stav", "Nová"))))
+
+
+    def save_all_orders_admin(self):
+            # 1. Načteme aktuální stav JSONu (abychom měli základ pro případná ID)
+            try:
+                with open("orders.json", "r", encoding="utf-8") as f:
+                    all_orders_data = json.load(f)
+            except (FileNotFoundError, json.JSONDecodeError):
+                all_orders_data = {}
+
+            # Zjistíme nejvyšší ID pro případ, že admin přidal úplně nové řádky
+            current_max_id = 0
+            if all_orders_data:
+                current_max_id = max([int(d["id"]) for d in all_orders_data.values()])
+
+            # Vytvoříme si nový slovník pro uložení (admin přepisuje celý soubor tím, co vidí)
+            new_json_data = {}
+
+            # 2. Procházíme tabulku řádek po řádku
+            for row in range(self.table.rowCount()):
+                # Načtení položek (pozor na indexy, u admina jich máš 7)
+                item_id      = self.table.item(row, 0)
+                item_user_id = self.table.item(row, 1)
+                item_nazev   = self.table.item(row, 2)
+                item_pocet   = self.table.item(row, 3)
+                item_popis   = self.table.item(row, 4) 
+                item_stav    = self.table.item(row, 5)
+                item_datum   = self.table.item(row, 6)
+
+                # --- LOGIKA ID ---
+                # Pokud ID v tabulce už existuje, použijeme ho. Pokud ne, vyrobíme nové.
+                raw_id = item_id.text() if item_id else ""
+                if raw_id.isdigit():
+                    this_id = int(raw_id)
+                else:
+                    current_max_id += 1
+                    this_id = current_max_id
+
+                # Klíč v JSONu (např. order_1)
+                key = f"order_{this_id}"
+
+                # 3. Sestavení dat pro jeden řádek
+                new_json_data[key] = {
+                    "id": this_id,
+                    "user_id": int(item_user_id.text()) if item_user_id and item_user_id.text().isdigit() else 0,
+                    "produkt": item_nazev.text() if item_nazev else "",
+                    "pocet": item_pocet.text() if item_pocet else "0",
+                    "description": item_popis.text() if item_popis else "",
+                    "stav": item_stav.text() if item_stav else "Nová",
+                    "datum": item_datum.text() if item_datum else "2024-05-23"
+                }
+
+            # 4. Zápis do souboru (admin uloží vše)
+            try:
+                with open("orders.json", "w", encoding="utf-8") as f:
+                    json.dump(new_json_data, f, indent=4, ensure_ascii=False)
+                QtWidgets.QMessageBox.information(self, "Hotovo", "Všechny zakázky byly uloženy.")
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Chyba", f"Chyba při ukládání: {e}")
+
+
+
+
+
+
+
+# ============================================================================================================================================================================        
 
     def create_orders_page(self):
         page = QWidget()
-        self.customer_layout = QVBoxLayout(page)
-        self.customer_layout.addWidget(QLabel(f"Vitejte1"))
-        self.pages.addWidget(page)
+        self.order_layout = QVBoxLayout(page)
+        
+        self.table1 = QTableWidget(0,7)
+        self.table1.setHorizontalHeaderLabels(["ID","USER_ID","Nazev","Pocet","Popis","Vyrizeno","Datum"])
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table1.setFixedWidth(725)
+        
+
+        for i in range(2,4):
+            self.table1.setColumnWidth(i,150)
+        self.order_layout.addWidget(self.table1)
+        
+        grid_layout = QtWidgets.QGridLayout()
+
+        self.update_button1 = QPushButton("Obnovit tabulku")
+        self.update_button1.setFixedWidth(170)
+        self.update_button1.clicked.connect(self.load_user_orders)
+        grid_layout.addWidget(self.update_button1,0,0)
+
+
+        self.save_button1 = QPushButton("Ulozit zmeny")
+        self.save_button1.setFixedWidth(170)
+#        self.save_button1.clicked.connect(self.save_user_orders)
+        grid_layout.addWidget(self.save_button1,0,1)
+        
+
+        self.add_order_button = QPushButton("Pridat objednavku")
+        self.add_order_button.setFixedWidth(170)
+  #      grid_layout.addWidget(self.add_order_button,0,2)
+        self.add_order_button.clicked.connect(self.add_blank_row)
+
+        self.remove_customer_button = QPushButton("Smazat objednavku")
+        self.remove_customer_button.setFixedWidth(170)
+  #      grid_layout.addWidget(self.remove_customer_button,0,3)
+
+        self.order_layout.addLayout(grid_layout)
+        
+        self.pages.addWidget(page) 
+
+
 
     def create_stats_page(self):
         page = QWidget()
@@ -653,7 +835,8 @@ class AdminSystemMockup(QMainWindow):
 
 
     
-    
+# ==========================================
+
 
 class CustommerSystemMockup(QMainWindow):
 
@@ -674,24 +857,36 @@ class CustommerSystemMockup(QMainWindow):
         main_layout.setSpacing(20)
         self.setCentralWidget(main_widget)
 
-        # levy navigacni panel
+# ===================================================
+#                   LEVY PANEL
+# ===================================================
         self.sidebar = QListWidget()
         self.sidebar.setFixedWidth(220)
 
         menu_items = [
             "Prehled",
             "Moje zakazky",
-            "Vytvořit novou zakázku",
-            "Můj profil",
-            "Podpora/Kontakt"
+            "Můj profil"
         ]
-
         self.sidebar.addItems(menu_items)
+        spacer = QListWidgetItem()
+        for i in range(4):
+            name = "spacer"+f"{i}"
+            name = QListWidgetItem()
+            name.setFlags(QtCore.Qt.ItemFlag.NoItemFlags)
+            self.sidebar.addItem(name)
+        self.sidebar.addItem("Nastaveni")
+        self.sidebar.addItem("Podpora/Kontakt")
+        self.sidebar.addItem("Odhlasit")
         self.sidebar.currentRowChanged.connect(self.switch_page)
+        self.sidebar.itemClicked.connect(self.handle_sidebar_click)
         main_layout.addWidget(self.sidebar)
 
+
+# ====================================================================
         self.pages = QStackedWidget()
         main_layout.addWidget(self.pages)
+
         
         # vytvoreni stranek pres funkce
 
@@ -701,31 +896,201 @@ class CustommerSystemMockup(QMainWindow):
 
         self.sidebar.setCurrentRow(0)
 
+# ==========================================
+#           FUNKCE APLIKACE
+# ==========================================
+    def logout_action(self):
+        odpoved = QMessageBox.question(
+            self, "Odhlasení", "Opravdu se chcete odhlasit?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if odpoved == QMessageBox.StandardButton.Yes:
+            self.close() # Tímto vyskočíš z app.exec() v main loopu a objeví se login
+
+    def handle_sidebar_click(self,item):
+        text = item.text()
+        if text == "Odhlasit":
+            self.logout_action()
 
 
+    def add_blank_row(self):
+            row_position = self.table.rowCount()
+            self.table.insertRow(row_position)
+            
 
+            self.table.setItem(row_position, 0, QTableWidgetItem(""))
+            
 
+            self.table.setItem(row_position, 1, QTableWidgetItem(""))
 
+            self.table.setItem(row_position, 2, QTableWidgetItem(""))
+            
+            description_item = QTableWidgetItem("")
+            description_item.setFlags(description_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable) 
+            self.table.setItem(row_position, 3, description_item)
 
-        # -------------- stranky --------------
+            status_item = QTableWidgetItem("Ne")
+            status_item.setFlags(status_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+            self.table.setItem(row_position, 4, status_item)
 
+    def load_user_orders(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.table.setRowCount(0)
+            return
+
+        self.table.setRowCount(0)
+        for key, data in all_orders_data.items():
+            # Filtrujeme podle tvého current_id
+            if str(data.get("user_id")) == str(self.current_id):
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+                
+                # Tady načítáme data do tvých sloupců
+                # Pokud máš ID v tabulce vidět, nechej to tak, pokud ne, 
+                # ujisti se, že indexy sedí (0=ID, 1=Nazev, 2=Pocet, 3=Popis, 4=Stav)
+                self.table.setItem(row, 0, QTableWidgetItem(str(data.get("id", ""))))
+                self.table.setItem(row, 1, QTableWidgetItem(str(data.get("produkt", ""))))
+                self.table.setItem(row, 2, QTableWidgetItem(str(data.get("pocet", "0"))))
+                
+                desc_item = QTableWidgetItem(str(data.get("description", "")))
+                desc_item.setFlags(desc_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.table.setItem(row, 3, desc_item)
+                
+                status_item = QTableWidgetItem(str(data.get("stav", "Ne")))
+                status_item.setFlags(status_item.flags() & ~QtCore.Qt.ItemFlag.ItemIsEditable)
+                self.table.setItem(row, 4, status_item)
+
+                # Volitelné: Seřazení tabulky (pokud chceš)
+                # self.table.sortItems(0, Qt.SortOrder.AscendingOrder)
+
+    def save_user_orders(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            all_orders_data = {}
+
+        # Smažeme jen záznamy tohoto uživatele v paměti, abychom je nahradili novými z tabulky
+        keys_to_remove = [k for k, v in all_orders_data.items() if str(v.get("user_id")) == str(self.current_id)]
+        for key in keys_to_remove:
+            del all_orders_data[key]
+
+        # Zjistíme nejvyšší ID pro nové kousky
+        current_max_id = 0
+        if all_orders_data:
+            current_max_id = max([int(d["id"]) for d in all_orders_data.values()])
+
+        for row in range(self.table.rowCount()):
+            id_item = self.table.item(row, 0)
+            
+            # Pokud řádek už má ID (bylo načteno), použijeme ho. Pokud ne, vyrobíme nové.
+            if id_item and id_item.text() != "":
+                this_id = int(id_item.text())
+            else:
+                current_max_id += 1
+                this_id = current_max_id
+
+            key = f"order_{this_id}"
+            all_orders_data[key] = {
+                "id": this_id,
+                "user_id": self.current_id,
+                "produkt": self.table.item(row, 1).text() if self.table.item(row, 1) else "",
+                "pocet": self.table.item(row, 2).text() if self.table.item(row, 2) else "0",
+                "description": self.table.item(row, 3).text() if self.table.item(row, 3) else "",
+                "stav": self.table.item(row, 4).text() if self.table.item(row, 4) else "Ne",
+                "datum": "2024-05-23"
+            }
+
+        with open("orders.json", "w", encoding="utf-8") as f:
+            json.dump(all_orders_data, f, indent=4, ensure_ascii=False)
+        
+        # Důležité: hned po uložení načíst, aby se v tabulce objevila ta nová ID
+        self.load_user_orders()
+
+    def delete_user(self):
+        current_row = self.table.currentRow()
+
+        if current_row <0:
+            QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdrive vyberte uzivatele, ktereho chcete smazat.")
+            return
+            
+        username = self.table.item(current_row,1).text()
+
+        odpoved = QtWidgets.QMessageBox.question(
+            self,
+            "Podtvrdit smazani",
+            f"opravdu chcete smazat uzivatele {username}?",
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+            )
+        
+        if odpoved == QtWidgets.QMessageBox.StandardButton.Yes:
+            self.table.removeRow(current_row)
+            self.save_user_orders()
+            QtWidgets.QMessageBox.information(self, "Hotovo", "Uzivatel byl smazan.")    
+                
+# ==========================================
+#               VYTVORENI STRANEK
+# ==========================================     
 
     def create_dashboard_page(self):
         page = QWidget()
         
         self.dashboard_layout = QVBoxLayout(page)
-        self.dashboard_layout.addWidget(QLabel(f"<h2>Vitejte v systemu, {jmeno}"))
         self.dashboard_layout.addStretch()
-        self.setStyleSheet('color: red;')
         self.pages.addWidget(page)
+
+        first_stat = QtWidgets.QGroupBox("Prvni statistika")
+        first_stat = QtWidgets.QGroupBox("Druha statistika")
+        treti_stat = QtWidgets.QGroupBox("Treti statistika")
+        ctvrta_stat = QtWidgets.QGroupBox("Ctvrta statistika")
+
 
     def create_order_page(self):
         page = QWidget()
         self.order_layout = QVBoxLayout(page)
-        self.label_welcome = QLabel("<h1> Tady muzete uvidet svoje zakazky a udelat novou objednavku.</h1>")
-        self.order_layout.addWidget(self.label_welcome)
-        self.order_layout.addStretch()
-        self.pages.addWidget(page)
+        
+        self.table = QTableWidget(0,5)
+        self.table.setHorizontalHeaderLabels(["ID", "Nazev", "Pocet", "Popis", "Vyrizeno"])
+        self.table.setColumnHidden(0, True) 
+        # self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.setFixedWidth(725)
+        
+
+        for i in range(0,4):
+            self.table.setColumnWidth(i,173)
+        self.order_layout.addWidget(self.table)
+        
+        grid_layout = QtWidgets.QGridLayout()
+
+        self.update_button1 = QPushButton("Obnovit tabulku")
+        self.update_button1.setFixedWidth(170)
+        self.update_button1.clicked.connect(self.load_user_orders)
+        grid_layout.addWidget(self.update_button1,0,0)
+
+
+        self.save_button1 = QPushButton("Ulozit zmeny")
+        self.save_button1.setFixedWidth(170)
+        self.save_button1.clicked.connect(self.save_user_orders)
+        grid_layout.addWidget(self.save_button1,0,1)
+        
+
+        self.add_order_button = QPushButton("Pridat objednavku")
+        self.add_order_button.setFixedWidth(170)
+        grid_layout.addWidget(self.add_order_button,0,2)
+        self.add_order_button.clicked.connect(self.add_blank_row)
+
+        self.remove_customer_button = QPushButton("Smazat objednavku")
+        self.remove_customer_button.setFixedWidth(170)
+        self.remove_customer_button.clicked.connect(self.delete_user)
+        grid_layout.addWidget(self.remove_customer_button,0,3)
+
+        self.order_layout.addLayout(grid_layout)
+        
+        self.pages.addWidget(page) 
     def create_settings_page(self):
         page = QWidget()
         self.settings_layout = QVBoxLayout(page)
@@ -741,36 +1106,52 @@ class CustommerSystemMockup(QMainWindow):
     def switch_page(self,index):
         self.pages.setCurrentIndex(index)
 
+
         
 
 # ==========================================
 # 3. SPOUŠTĚCÍ BLOK
 # ==========================================
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    login_window = AuthDialog()
     app.setStyleSheet(NORMAL_STYLE_MAIN)
-    
-    if login_window.exec_() == QDialog.Accepted:
-        role = login_window.user_role
-        # Získání jména, které jsme si uložili v handle_login
-        username = login_window.final_username 
-        jmeno = login_window.final_name 
-        id = login_window.user_id
+    app.setWindowIcon(QIcon("assets/logo.png"))
+
+    while True:  # Smyčka, která drží aplikaci naživu
+        login_window = AuthDialog()
+        login_window.setWindowFlags(login_window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         
-        if role == "admin":
-            # Tady ho předáš do konstruktoru!
-            window = AdminSystemMockup(username=username,jmeno=jmeno,id=id) 
-            window.show()
-            sys.exit(app.exec_())
-        else:
-            window = CustommerSystemMockup(username=username,jmeno=jmeno,id=id)
-            window.show()
-            sys.exit(app.exec_())
+        # 1. Spustíme LOGIN
+        if login_window.exec() == QDialog.DialogCode.Accepted:
+            role = login_window.user_role
+            username = login_window.final_username 
+            jmeno = login_window.final_name 
+            user_id = login_window.user_id
             
-    else:
-        # Pokud uživatel okno zavře křížkem, aplikace se ukončí
-        sys.exit()
+            # 2. Vytvoříme HLAVNÍ OKNO podle role
+            if role == "admin":
+                window = AdminSystemMockup(username=username, jmeno=jmeno, id=user_id)
+            else:
+                window = CustommerSystemMockup(username=username, jmeno=jmeno, id=user_id)
+            
+            # 3. Spustíme hlavní okno a ČEKÁME
+            window.show()
+            
+            # Tady je ten hlavní trik:
+            # app.exec() se zastaví tady, dokud je hlavní okno otevřené.
+            # Jakmile zavoláš self.close() v okně, kód pokračuje dál.
+            app.exec() 
+            
+            # Pokud chceš úplně vypnout aplikaci, když se zavře okno křížkem 
+            # (a ne tlačítkem Odhlásit), musel bys v logout_action nastavit příznak.
+            # Pro teď se to po zavření okna prostě vrátí na login.
+        else:
+            # Uživatel zavřel login okno (křížkem) -> úplný konec
+            break
+
+    sys.exit()
+
 
 
  

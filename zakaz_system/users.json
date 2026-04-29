@@ -19,16 +19,6 @@
               "password": "heslo",
               "role": "zakaznik"
        },
-       "user_3": {
-              "id": 3,
-              "username": "kska",
-              "jmeno": "max",
-              "prijmeni": "koks",
-              "telefon": "+420773126461",
-              "firma": "Solomcik s.r.o",
-              "password": "qwasQWAS",
-              "role": "zakaznik"
-       },
        "user_4": {
               "id": 4,
               "username": "ksks",
@@ -62,10 +52,10 @@
        "user_7": {
               "id": 7,
               "username": "kubas",
-              "jmeno": "jakubas",
-              "prijmeni": "zrno",
-              "telefon": "+4203123414214",
-              "firma": "zanehlik s.r.o",
+              "jmeno": "Jakub",
+              "prijmeni": "Taticek",
+              "telefon": "+420313213132",
+              "firma": "kokonut",
               "password": "zrno",
               "role": "zakaznik"
        }
