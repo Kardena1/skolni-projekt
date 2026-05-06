@@ -727,15 +727,15 @@ class AdminSystemMockup(QMainWindow):
             new_json_data = {}
 
             # 2. Procházíme tabulku řádek po řádku
-            for row in range(self.table.rowCount()):
+            for row in range(self.table1.rowCount()):
                 # Načtení položek (pozor na indexy, u admina jich máš 7)
-                item_id      = self.table.item(row, 0)
-                item_user_id = self.table.item(row, 1)
-                item_nazev   = self.table.item(row, 2)
-                item_pocet   = self.table.item(row, 3)
-                item_popis   = self.table.item(row, 4) 
-                item_stav    = self.table.item(row, 5)
-                item_datum   = self.table.item(row, 6)
+                item_id      = self.table1.item(row, 0)
+                item_user_id = self.table1.item(row, 1)
+                item_nazev   = self.table1.item(row, 2)
+                item_pocet   = self.table1.item(row, 3)
+                item_popis   = self.table1.item(row, 4) 
+                item_stav    = self.table1.item(row, 5)
+                item_datum   = self.table1.item(row, 6)
 
                 # --- LOGIKA ID ---
                 # Pokud ID v tabulce už existuje, použijeme ho. Pokud ne, vyrobíme nové.
@@ -800,7 +800,7 @@ class AdminSystemMockup(QMainWindow):
 
         self.save_button1 = QPushButton("Ulozit zmeny")
         self.save_button1.setFixedWidth(170)
-#        self.save_button1.clicked.connect(self.save_user_orders)
+        self.save_button1.clicked.connect(self.save_all_orders_admin)
         grid_layout.addWidget(self.save_button1,0,1)
         
 

@@ -1,0 +1,1288 @@
+import sys
+import os
+import json
+from datetime import datetime
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
+                             QHBoxLayout, QPushButton, QLabel, QStackedWidget,
+                             QListWidget, QListWidgetItem, QTableWidget, QHeaderView, QTableWidgetItem,
+                             QLineEdit, QDialog, QMessageBox, QGroupBox, QComboBox)
+from PyQt5.QtCore import Qt, QRegularExpression, QSize
+from PyQt5.QtGui import QIcon, QPixmap, QRegularExpressionValidator
+
+
+NORMAL_STYLE_MAIN = """
+    * {
+        font-size: 14px;
+    }
+    AuthDialog {
+        background-color: white;
+    }
+    QMainWindow {
+        background-color: #F3F4F6;
+    }
+    QListWidget {
+        background-color: #1F2937;
+        color: #D1D5DB;
+        border: none;
+        padding-top: 20px;
+        padding-left:20px;
+        outline: 0;
+    }
+    QListWidget::item {
+        padding: 15px 20px;
+    }
+    QListWidget::item:hover {
+        background-color: #374151;
+    }
+    QListWidget::item:selected {
+        background-color: #111827;
+        color: #FFFFFF;
+        border-left: 4px solid #3B82F6;
+    }
+    QLabel {
+        color: #111827;
+        padding: 10px 0px;
+    }
+    QPushButton {
+        background-color: #3B82F6;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+    QPushButton:hover {
+        background-color: #2563EB;
+    }
+    QTableWidget {
+        background-color: white;
+        color: #1F2937;
+        border: none;
+        gridline-color: #1F2937;
+        selection-background-color: gray;
+        selection-color: white;
+    }
+    QHeaderView {
+        background-color: #1F2937;
+    }
+    QHeaderView::section {
+        background-color: #1F2937;
+        color: white;
+        padding: 8px;
+        border: none;
+        border-bottom: 2px solid #E5E7EB;
+        font-weight: bold;
+    }
+    QTableWidget QTableCornerButton::section {
+        background-color: #1F2937;
+        border: none;
+    }    
+    QComboBox {
+        color: black;
+        background-color: white;
+        padding: 5px;
+        border: 1px solid gray;
+        border-radius: 4px;
+    }
+    QMessageBox QLabel {
+        color: black;
+    }
+"""
+
+BARVOSLEPY_STYLE = """
+    * {
+        font-size: 14px;
+        background-color: #000000;
+        color: #FFFFFF;
+        font-family: sans-serif;
+    }
+    AuthDialog, QMainWindow {
+        background-color: #000000;
+    }
+    QListWidget {
+        background-color: #000000;
+        color: #FFFF00; 
+        border-right: 2px solid #FFFF00;
+        outline: 0;
+    }
+    QListWidget::item {
+        padding: 15px 20px;
+    }
+    QListWidget::item:hover {
+        background-color: #1A1A1A;
+    }
+    QListWidget::item:selected {
+        background-color: #0055FF; 
+        color: #FFFFFF;
+        border-left: 5px solid #FFFF00;
+    }
+    QTableWidget {
+        background-color: #000000;
+        color: #FFFFFF;
+        gridline-color: #FFFF00;
+        border: 2px solid #FFFF00;
+        selection-background-color: #0055FF;
+        selection-color: #FFFFFF;
+    }
+    QHeaderView::section {
+        background-color: #0055FF;
+        color: #FFFFFF;
+        padding: 8px;
+        border: 1px solid #FFFF00;
+        font-weight: bold;
+    }
+    QTableWidget QTableCornerButton::section {
+        background-color: #0055FF;
+        border: 1px solid #FFFF00;
+    }
+    QPushButton {
+        background-color: #0055FF;
+        color: #FFFFFF;
+        font-weight: bold;
+        border: 2px solid #FFFF00;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+    QPushButton:hover {
+        background-color: #0044CC;
+        border-color: #FFFFFF;
+    }
+    QLineEdit {
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 2px solid #FFFF00;
+        border-radius: 4px;
+        padding: 5px;
+    }
+    QComboBox {
+        background-color: #FFFF00;
+        color: #000000;
+        border-radius: 4px;
+        padding: 5px;
+        font-weight: bold;
+    }
+    QLabel {
+        color: #FFFFFF;
+        background-color: transparent;
+    }
+    QMessageBox {
+        background-color: #000000;
+        border: 3px solid #FFFF00;
+    }
+    QMessageBox QLabel {
+        color: #FFFFFF;
+        font-weight: bold;
+    }
+"""
+
+def aplikuj_vzhled(vzhled_jmeno):
+    app = QtWidgets.QApplication.instance()
+    if vzhled_jmeno == "Barvoslepý":
+        app.setStyleSheet(BARVOSLEPY_STYLE)
+    else:
+        app.setStyleSheet(NORMAL_STYLE_MAIN)
+
+try:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+except Exception:
+    script_dir = os.getcwd() # Zabrání pádu, pokud je program spuštěn specifickým způsobem
+    
+# ==========================================
+# 1. PŘIHLAŠOVACÍ OKNO
+# ==========================================
+
+class AuthDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Welcome")
+        self.setFixedSize(385, 450)
+        self.user_role = None
+        self.final_username = None
+        self.final_name = None
+        self.user_id = None
+        self.echomode = 0
+        self.check_db()
+
+        self.main_layout = QVBoxLayout(self)
+        self.auth_pages = QStackedWidget()
+        self.main_layout.addWidget(self.auth_pages)
+
+        self.create_login_page()
+        self.create_register_page()
+
+    def otevrit_velke_logo(self):
+        try:
+            self.logo_dialog = QDialog(self)
+            self.logo_dialog.setWindowTitle("Velké Logo")
+            self.logo_dialog.setMinimumSize(600, 500)
+            self.logo_dialog.setStyleSheet("background-color: white;")
+
+            layout = QVBoxLayout(self.logo_dialog)
+            label_velke_logo = QLabel()
+            
+            cesty_ke_zkousce = [
+                os.path.join(script_dir, "assets", "logo.png"),
+                os.path.join(script_dir, "logo.png"),
+                "assets/logo.png",
+                "logo.png"
+            ]
+            
+            pixmap = QPixmap()
+            nalezena_cesta = None
+            
+            for cesta in cesty_ke_zkousce:
+                if os.path.exists(cesta):
+                    pixmap = QPixmap(cesta)
+                    if not pixmap.isNull():
+                        nalezena_cesta = cesta
+                        break
+
+            if nalezena_cesta is None:
+                label_velke_logo.setText("Logo 'logo.png' nebylo nalezeno.")
+                label_velke_logo.setStyleSheet("color: red; font-weight: bold; font-size: 16px;")
+            else:
+                label_velke_logo.setPixmap(pixmap.scaled(550, 450, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            
+            label_velke_logo.setAlignment(Qt.AlignCenter)
+            layout.addWidget(label_velke_logo)
+            
+            btn_close = QPushButton("Zavřít")
+            btn_close.clicked.connect(self.logo_dialog.close)
+            layout.addWidget(btn_close)
+
+            self.logo_dialog.exec_()
+        except Exception as e:
+            self.zobrazit_chybu(f"Chyba při zobrazení loga: {e}")
+
+    def create_login_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Přihlášení</h2>"))
+
+        self.login_user = QLineEdit()
+        self.login_user.setPlaceholderText("Uživatelské jméno")
+        layout.addWidget(self.login_user)
+
+        gridlayout1 = QtWidgets.QGridLayout()
+
+        self.login_password = QLineEdit()
+        self.login_password.setPlaceholderText("Heslo")
+        self.login_password.setEchoMode(QLineEdit.Password)
+        gridlayout1.addWidget(self.login_password, 0, 0)
+
+        self.btn_eye1 = QPushButton()
+        self.btn_eye1.setIcon(QIcon("assets/eye_icon.png"))
+        self.btn_eye1.setIconSize(QSize(28, 28))
+        self.btn_eye1.setFlat(True)
+        self.btn_eye1.setStyleSheet("border:none; background:transparent; width:30px;")
+        self.btn_eye1.clicked.connect(lambda: self.make_password_visible(self.login_password))
+        self.btn_eye1.setCursor(Qt.PointingHandCursor)
+        gridlayout1.addWidget(self.btn_eye1, 0, 1)
+
+        layout.addLayout(gridlayout1)
+
+        btn_login = QPushButton("Vstoupit")
+        btn_login.clicked.connect(self.handle_login)
+        layout.addWidget(btn_login)
+
+        btn_to_reg = QPushButton("Nemáte účet? Zaregistrujte se")
+        btn_to_reg.setFlat(True)
+        btn_to_reg.clicked.connect(lambda: self.auth_pages.setCurrentIndex(1))
+        layout.addWidget(btn_to_reg)
+
+        regex_USERNAME = QRegularExpression(r"^[a-zA-Z0-9]+([._][a-zA-Z0-9]+)?$")
+        validator_user = QRegularExpressionValidator(regex_USERNAME)
+        self.login_user.setValidator(validator_user)
+
+        regex_password = QRegularExpression(r"^[a-zA-Z0-9!@#$%^&*_\-+=]+$")
+        validator_password = QRegularExpressionValidator(regex_password)
+        self.login_password.setValidator(validator_password)
+
+        bottom_settings_layout = QHBoxLayout()
+        bottom_settings_layout.addStretch()
+
+        btn_zoom_logo = QPushButton("Zvětšit Logo")
+        btn_zoom_logo.setFixedWidth(120)
+        btn_zoom_logo.clicked.connect(self.otevrit_velke_logo)
+        bottom_settings_layout.addWidget(btn_zoom_logo)
+
+        self.combo_vzhled_auth = QComboBox()
+        self.combo_vzhled_auth.addItems(["Normální", "Barvoslepý"])
+        self.combo_vzhled_auth.setFixedWidth(120)
+        self.combo_vzhled_auth.currentTextChanged.connect(aplikuj_vzhled)
+        bottom_settings_layout.addWidget(self.combo_vzhled_auth)
+
+        layout.addLayout(bottom_settings_layout)
+        layout.addStretch()
+        self.auth_pages.addWidget(page)
+
+    def create_register_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+
+        layout.addWidget(QLabel("<h3>Registrace</h3>"))
+
+        self.reg_user_login = QLineEdit()
+        self.reg_user_login.setPlaceholderText("Uživatelské jméno")
+        layout.addWidget(self.reg_user_login)
+
+        self.reg_user_name = QLineEdit()
+        self.reg_user_name.setPlaceholderText("Vaše jméno")
+        layout.addWidget(self.reg_user_name)
+
+        self.reg_user_surname = QLineEdit()
+        self.reg_user_surname.setPlaceholderText("Vaše příjmení")
+        layout.addWidget(self.reg_user_surname)
+
+        self.reg_user_number = QLineEdit()
+        self.reg_user_number.setPlaceholderText("Vaše telefonní číslo")
+        layout.addWidget(self.reg_user_number)
+
+        self.reg_user_firm = QLineEdit()
+        self.reg_user_firm.setPlaceholderText("Firma")
+        layout.addWidget(self.reg_user_firm)
+
+        gridlayout = QtWidgets.QGridLayout()
+
+        self.reg_user_pass = QLineEdit()
+        self.reg_user_pass.setPlaceholderText("Zvolte heslo")
+        self.reg_user_pass.setEchoMode(QLineEdit.Password)
+        gridlayout.addWidget(self.reg_user_pass, 0, 0)
+
+        self.reg_user_ver = QLineEdit()
+        self.reg_user_ver.setPlaceholderText("Zopakujte heslo")
+        self.reg_user_ver.setEchoMode(QLineEdit.Password)
+        gridlayout.addWidget(self.reg_user_ver, 0, 1)
+
+        self.btn_eye = QPushButton()
+        self.btn_eye.setIcon(QIcon("assets/eye_icon.png"))
+        self.btn_eye.setIconSize(QSize(28, 28))
+        self.btn_eye.setFlat(True)
+        self.btn_eye.setStyleSheet("border:none; background:transparent; width:30px;")
+        self.btn_eye.clicked.connect(lambda: self.make_password_visible(self.reg_user_pass, self.reg_user_ver))
+        self.btn_eye.setCursor(Qt.PointingHandCursor)
+        gridlayout.addWidget(self.btn_eye, 0, 2)
+
+        layout.addLayout(gridlayout)
+        
+        btn_reg = QPushButton("Vytvořit účet")
+        btn_reg.clicked.connect(self.handle_register)
+        layout.addWidget(btn_reg)
+
+        btn_to_log = QPushButton("Zpět na login")
+        btn_to_log.setFlat(True)
+        btn_to_log.clicked.connect(lambda: self.auth_pages.setCurrentIndex(0))
+        layout.addWidget(btn_to_log)
+
+        regex_USERNAME = QRegularExpression(r"^[a-zA-Z0-9]+([._][a-zA-Z0-9]+)?$")
+        validator_user = QRegularExpressionValidator(regex_USERNAME)
+        self.reg_user_login.setValidator(validator_user)
+
+        regex_password = QRegularExpression(r"^[a-zA-Z0-9!@#$%^&*_\-+=]+$")
+        validator_password = QRegularExpressionValidator(regex_password)
+        self.reg_user_pass.setValidator(validator_password)
+        self.reg_user_ver.setValidator(validator_password)
+
+        bottom_settings_layout = QHBoxLayout()
+        bottom_settings_layout.addStretch()
+
+        btn_zoom_logo_reg = QPushButton("Zvětšit Logo")
+        btn_zoom_logo_reg.setFixedWidth(120)
+        btn_zoom_logo_reg.clicked.connect(self.otevrit_velke_logo)
+        bottom_settings_layout.addWidget(btn_zoom_logo_reg)
+
+        self.combo_vzhled_auth_reg = QComboBox()
+        self.combo_vzhled_auth_reg.addItems(["Normální", "Barvoslepý"])
+        self.combo_vzhled_auth_reg.setFixedWidth(120)
+        self.combo_vzhled_auth_reg.currentTextChanged.connect(aplikuj_vzhled)
+        bottom_settings_layout.addWidget(self.combo_vzhled_auth_reg)
+
+
+        # --- Validatory ---
+        # 1. Uživatelské jméno (alfanumerické, může obsahovat . nebo _)
+        regex_USERNAME = QRegularExpression(r"^[a-zA-Z0-9]+([._][a-zA-Z0-9]+)?$")
+        validator_user = QRegularExpressionValidator(regex_USERNAME)
+        self.reg_user_login.setValidator(validator_user)
+
+        # 2. Telefonní číslo (může začínat +, dále pouze čísla a mezery)
+        regex_PHONE = QRegularExpression(r"^\+?[\d\s]*$")
+        validator_phone = QRegularExpressionValidator(regex_PHONE)
+        self.reg_user_number.setValidator(validator_phone)
+
+        # 3. Heslo (běžný formát, povoluje speciální znaky, ale STRIKTNĚ BEZ MEZER)
+        regex_password = QRegularExpression(r"^[^\s]*$")
+        validator_password = QRegularExpressionValidator(regex_password)
+        self.reg_user_pass.setValidator(validator_password)
+        self.reg_user_ver.setValidator(validator_password)
+
+
+        layout.addLayout(bottom_settings_layout)
+        layout.addStretch()
+        self.auth_pages.addWidget(page)
+        
+    def handle_login(self):
+        u = self.login_user.text().strip()
+        passw = self.login_password.text()
+        
+        if not u or not passw:
+            self.zobrazit_chybu("Prosím vyplňte uživatelské jméno i heslo.")
+            return
+
+        self.db_file = "users.json"
+        found_user = None
+
+        try:
+            if not os.path.exists(self.db_file):
+                self.check_db()
+
+            with open(self.db_file, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            
+            for user_data in data.values():
+                if user_data.get("username") == u:
+                    found_user = user_data
+                    break
+                    
+            if found_user and found_user.get("password") == passw:
+                self.user_role = found_user.get("role")
+                self.user_id = found_user.get("id")
+                self.final_username = u
+                self.final_name = found_user.get("jmeno")
+                self.accept()
+            else:
+                self.zobrazit_chybu("Neplatné přihlašovací údaje.")
+        except json.JSONDecodeError:
+            self.zobrazit_chybu("Databáze uživatelů je poškozená (chyba JSON).")
+        except Exception as e:
+            self.zobrazit_chybu(f"Chyba při přihlášení: {e}")
+
+    def handle_register(self):
+        u = self.reg_user_login.text().strip()
+        p = self.reg_user_pass.text()
+        p_ver = self.reg_user_ver.text()
+        jmen = self.reg_user_name.text().strip()
+        prijm = self.reg_user_surname.text().strip()
+        telefon = self.reg_user_number.text().strip()
+        firma = self.reg_user_firm.text().strip()
+        self.db_file = "users.json"
+
+        # Validace prázdných polí
+        if not all([u, p, p_ver, jmen, prijm, telefon, firma]):
+            self.zobrazit_chybu("Nezadali jste všechny údaje. Všechna pole jsou povinná.")
+            return
+
+        # --- NOVÉ: Kontrola formátu a délky telefonu a hesla ---
+        telefon_cisla = telefon.replace(" ", "").replace("+", "")
+        if len(telefon_cisla) < 9:
+            self.zobrazit_chybu("Telefonní číslo je příliš krátké (min. 9 číslic).")
+            return
+            
+        if len(p) < 6:
+            self.zobrazit_chybu("Heslo musí mít alespoň 6 znaků.")
+            return
+        # -------------------------------------------------------
+
+        if p != p_ver:
+            self.zobrazit_chybu("Hesla se neshodují.")
+            return
+
+
+        try:
+            if not os.path.exists(self.db_file):
+                self.check_db()
+
+            with open(self.db_file, 'r', encoding="utf-8") as file:
+                data = json.load(file)
+
+            # Kontrola existujícího uživatele
+            for polozka in data.values():
+                if polozka.get("username") == u:
+                    self.zobrazit_chybu("Uživatelské jméno již existuje.")
+                    return
+
+            # Získání nového ID
+            new_id = 1
+            if data:
+                new_id = max(uzivatel.get("id", 0) for uzivatel in data.values()) + 1
+
+            data[f"user_{new_id}"] = {
+                "id": new_id,
+                "username": u,
+                "jmeno": jmen,
+                "prijmeni": prijm,
+                "telefon": telefon,
+                "firma": firma,
+                "password": p,
+                "role": "zakaznik"
+            }
+
+            with open(self.db_file, 'w', encoding="utf-8") as file:
+                json.dump(data, file, indent=4, ensure_ascii=False)
+                
+            QMessageBox.information(self, "Hotovo", "Registrace byla úspěšná! Můžete se přihlásit.")
+            self.auth_pages.setCurrentIndex(0)
+            
+        except json.JSONDecodeError:
+            self.zobrazit_chybu("Chyba databáze (JSON). Nelze registrovat uživatele.")
+        except Exception as e:
+            self.zobrazit_chybu(f"Neočekávaná chyba při registraci: {e}")
+
+    def zobrazit_chybu(self, text):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Oznámení")
+        msg.setText(text)
+        msg.exec_()
+
+    def make_password_visible(self, *inputs):
+        if self.echomode == 0:
+            for inp in inputs:
+                inp.setEchoMode(QLineEdit.Normal)
+            self.echomode = 1
+        else:
+            for inp in inputs:
+                inp.setEchoMode(QLineEdit.Password)
+            self.echomode = 0
+
+    def check_db(self):
+        self.db_file = "users.json"
+        try:
+            if not os.path.exists(self.db_file):
+                users_db = {
+                    "user_1": {
+                        "id": 1,
+                        "username": "admin",
+                        "jmeno": "Admin",
+                        "prijmeni": "Admin",
+                        "telefon": "000000000",
+                        "firma": "System",
+                        "password": "admin",
+                        "role": "admin"
+                    }
+                }
+                with open(self.db_file, 'w', encoding="utf-8") as file:
+                    json.dump(users_db, file, indent=4, ensure_ascii=False)
+        except Exception as e:
+            print(f"Nelze zkontrolovat nebo vytvořit databázi: {e}")
+
+# ================================
+#             ADMIN OKNO
+# ================================
+        
+class AdminSystem(QMainWindow):
+    def __init__(self, username, jmeno, id):
+        super().__init__()
+        self.current_user = username
+        self.current_user_name = jmeno
+        self.current_id = id
+
+        self.user_file = "users.json"
+        self.setWindowTitle(f"Admin - Přihlášen jako: {username}")
+        self.setFixedSize(1000, 600)
+
+        main_widget = QWidget()
+        main_layout = QHBoxLayout(main_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(20)
+        self.setCentralWidget(main_widget)
+
+        self.sidebar = QListWidget()
+        self.sidebar.setFixedWidth(220)
+
+        menu_items = [
+            "Správa uživatelů",
+            "Přehled zakázek",
+            "Statistiky",
+            "Logy",
+            "Nastavení"
+        ]
+        self.sidebar.addItems(menu_items)
+        
+        for _ in range(4):
+            item = QListWidgetItem()
+            item.setFlags(QtCore.Qt.ItemFlag.NoItemFlags)
+            self.sidebar.addItem(item)
+            
+        self.sidebar.addItem("Odhlásit")
+        self.sidebar.currentRowChanged.connect(self.switch_page)
+        self.sidebar.itemClicked.connect(self.handle_sidebar_click)
+        main_layout.addWidget(self.sidebar)
+
+        self.pages = QStackedWidget()
+        main_layout.addWidget(self.pages)
+
+        # Vytvoření stránek
+        self.create_customers_list_page()
+        self.create_orders_page()
+        self.create_stats_page()
+        self.create_logs_page()
+        self.create_settings_page()
+
+        self.sidebar.setCurrentRow(0)
+        self.load_custommer_data()
+        self.load_user_orders()
+
+    def logout_action(self):
+        odpoved = QMessageBox.question(
+            self, "Odhlášení", "Opravdu se chcete odhlásit?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if odpoved == QMessageBox.StandardButton.Yes:
+            self.close()
+
+    def handle_sidebar_click(self, item):
+        text = item.text()
+        if text == "Odhlásit":
+            self.logout_action()
+
+    def switch_page(self, index):
+        if index < self.pages.count():
+            self.pages.setCurrentIndex(index)
+
+    def add_blank_user_row(self):
+        try:
+            max_id = 0
+            for row in range(self.table.rowCount()):
+                item = self.table.item(row, 0)
+                if item and item.text().isdigit():
+                    current_id = int(item.text())
+                    if current_id > max_id:
+                        max_id = current_id
+
+            new_id = max_id + 1
+            row_position = self.table.rowCount()
+            self.table.insertRow(row_position)
+            
+            id_item = QTableWidgetItem(str(new_id))
+            id_item.setFlags(id_item.flags() ^ QtCore.Qt.ItemIsEditable)
+            self.table.setItem(row_position, 0, id_item)
+            
+            for i in range(1, 7):
+                self.table.setItem(row_position, i, QTableWidgetItem(""))
+                
+            combo = QtWidgets.QComboBox()
+            combo.addItems(["zakaznik", "admin"])
+            self.table.setCellWidget(row_position, 7, combo)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se přidat řádek uživatele: {e}")
+
+    def delete_user(self):
+        try:
+            current_row = self.table.currentRow()
+            if current_row < 0:
+                QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdříve vyberte uživatele, kterého chcete smazat.")
+                return
+                
+            username_item = self.table.item(current_row, 1)
+            username = username_item.text() if username_item else "Neznámý"
+
+            odpoved = QtWidgets.QMessageBox.question(
+                self, "Potvrdit smazání", f"Opravdu chcete smazat uživatele {username}?",
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+            )
+            if odpoved == QtWidgets.QMessageBox.StandardButton.Yes:
+                self.table.removeRow(current_row)
+                self.save_custommer_data()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se smazat uživatele: {e}")
+
+    def oznamit_zmenu(self, index, combo):
+        if combo.itemText(index) == "admin":
+            msg = QtWidgets.QMessageBox()
+            msg.setWindowTitle("Potvrzení změny role")
+            msg.setText("Opravdu chcete tomuto uživateli přidělit práva ADMINA?")
+            msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok | 
+                                   QtWidgets.QMessageBox.StandardButton.Cancel)
+            
+            if msg.exec() == QMessageBox.StandardButton.Cancel:
+                combo.setCurrentIndex(0)
+
+    def load_custommer_data(self):
+        try:
+            if not os.path.exists(self.user_file):
+                with open(self.user_file, 'w', encoding="utf-8") as f:
+                    json.dump({}, f)
+
+            with open(self.user_file, 'r', encoding="utf-8") as file:
+                data = json.load(file)
+
+            self.table.setRowCount(0)
+            for polozka in data.values():
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+
+                combo = QtWidgets.QComboBox()
+                combo.addItems(["zakaznik", "admin"])
+                combo.setCurrentText(polozka.get("role", "zakaznik"))
+                combo.currentIndexChanged.connect(lambda index, c=combo: self.oznamit_zmenu(index, c))
+                
+                id_item = QTableWidgetItem(str(polozka.get("id", "")))
+                id_item.setFlags(id_item.flags() ^ QtCore.Qt.ItemIsEditable)
+
+                self.table.setItem(row, 0, id_item)
+                self.table.setItem(row, 1, QTableWidgetItem(str(polozka.get("username", ""))))
+                self.table.setItem(row, 2, QTableWidgetItem(str(polozka.get("jmeno", ""))))
+                self.table.setItem(row, 3, QTableWidgetItem(str(polozka.get("prijmeni", ""))))
+                self.table.setItem(row, 4, QTableWidgetItem(str(polozka.get("telefon", ""))))
+                self.table.setItem(row, 5, QTableWidgetItem(str(polozka.get("firma", ""))))
+                self.table.setItem(row, 6, QTableWidgetItem(str(polozka.get("password", ""))))
+                self.table.setCellWidget(row, 7, combo)
+        except json.JSONDecodeError:
+            QtWidgets.QMessageBox.critical(self, "Chyba", "Soubor s uživateli je poškozený.")
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se načíst uživatele: {e}")
+
+    def save_custommer_data(self):
+        new_data = {}
+        try:
+            for row in range(self.table.rowCount()):
+                id_val = self.table.item(row, 0).text().strip() if self.table.item(row, 0) else ""
+                username_val = self.table.item(row, 1).text().strip() if self.table.item(row, 1) else ""
+                jmeno_val = self.table.item(row, 2).text().strip() if self.table.item(row, 2) else ""
+                prijmeni_val = self.table.item(row, 3).text().strip() if self.table.item(row, 3) else ""
+                telefon_val = self.table.item(row, 4).text().strip() if self.table.item(row, 4) else ""
+                firma_val = self.table.item(row, 5).text().strip() if self.table.item(row, 5) else ""
+                password_val = self.table.item(row, 6).text().strip() if self.table.item(row, 6) else ""
+                
+                combo = self.table.cellWidget(row, 7)
+                vybrana_role = combo.currentText() if combo else "zakaznik"
+
+                # Validace pole
+                if not all([username_val, jmeno_val, prijmeni_val, password_val]):
+                    QMessageBox.warning(self, "Upozornění", f"Na řádku {row + 1} chybí povinné údaje (Jméno, Příjmení, Username, Heslo). Úpravy se neuloží.")
+                    return
+
+                key = f"user_{id_val}"
+                new_data[key] = {
+                    "id": int(id_val) if id_val.isdigit() else 0,
+                    "username": username_val,
+                    "jmeno": jmeno_val,
+                    "prijmeni": prijmeni_val,
+                    "telefon": telefon_val,
+                    "firma": firma_val,
+                    "password": password_val,
+                    "role": vybrana_role
+                }
+            
+            with open(self.user_file, 'w', encoding="utf-8") as file:
+                json.dump(new_data, file, indent=4, ensure_ascii=False)
+            QMessageBox.information(self, "Uloženo", "Data uživatelů byla úspěšně uložena!")
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Kritická chyba", f"Data nebylo možné uložit: {e}")
+
+    def create_customers_list_page(self):
+        page = QWidget()
+        self.customer_layout = QVBoxLayout(page)
+        self.grid_button_layout = QtWidgets.QGridLayout()
+
+        self.table = QTableWidget(0, 8)
+        self.table.setHorizontalHeaderLabels(["ID", "Username", "Jméno", "Příjmení", 'Telefon', 'Firma', 'Heslo', 'Role'])
+        self.table.setFixedWidth(730)
+
+        for i in range(1, 7):
+            self.table.setColumnWidth(i, 100)
+
+        self.load_data_button = QPushButton("Obnovit tabulku")
+        self.load_data_button.clicked.connect(self.load_custommer_data)
+        self.grid_button_layout.addWidget(self.load_data_button, 0, 0)
+
+        self.save_data_button = QPushButton("Uložit změny")
+        self.save_data_button.clicked.connect(self.save_custommer_data)
+        self.grid_button_layout.addWidget(self.save_data_button, 0, 1)
+
+        self.add_new_row_button = QPushButton("Přidat uživatele")
+        self.add_new_row_button.clicked.connect(self.add_blank_user_row)
+        self.grid_button_layout.addWidget(self.add_new_row_button, 0, 2)
+
+        self.delete_custommer_button = QPushButton("Smazat uživatele")
+        self.delete_custommer_button.clicked.connect(self.delete_user)
+        self.grid_button_layout.addWidget(self.delete_custommer_button, 0, 3)
+
+        self.customer_layout.addWidget(self.table)
+        self.customer_layout.addLayout(self.grid_button_layout)
+        self.pages.addWidget(page)
+
+    # ------------------ ZAKÁZKY (ADMIN) ------------------
+
+    def load_user_orders(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.table1.setRowCount(0)
+            return
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se načíst zakázky: {e}")
+            return
+
+        try:
+            self.table1.setRowCount(0)
+            for key, data in all_orders_data.items():
+                row_position = self.table1.rowCount()
+                self.table1.insertRow(row_position)
+                
+                self.table1.setItem(row_position, 0, QTableWidgetItem(str(data.get("id", ""))))
+                self.table1.setItem(row_position, 1, QTableWidgetItem(str(data.get("user_id", ""))))
+                self.table1.setItem(row_position, 2, QTableWidgetItem(str(data.get("produkt", ""))))
+                self.table1.setItem(row_position, 3, QTableWidgetItem(str(data.get("pocet", "0"))))
+                self.table1.setItem(row_position, 4, QTableWidgetItem(str(data.get("description", ""))))
+                self.table1.setItem(row_position, 5, QTableWidgetItem(str(data.get("stav", "Nová"))))
+                self.table1.setItem(row_position, 6, QTableWidgetItem(str(data.get("datum", ""))))
+        except Exception as e:
+            print(f"Chyba při plnění tabulky zakázek: {e}")
+
+    def add_blank_order_row(self):
+        try:
+            row_pos = self.table1.rowCount()
+            self.table1.insertRow(row_pos)
+            for i in range(7):
+                self.table1.setItem(row_pos, i, QTableWidgetItem(""))
+            self.table1.setItem(row_pos, 5, QTableWidgetItem("Nová"))
+        except Exception as e:
+            print(f"Chyba při přidávání řádku zakázky: {e}")
+
+    def delete_order_admin(self):
+        try:
+            current_row = self.table1.currentRow()
+            if current_row < 0:
+                QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdříve vyberte zakázku, kterou chcete smazat.")
+                return
+
+            odpoved = QtWidgets.QMessageBox.question(
+                self, "Potvrdit smazání", "Opravdu chcete smazat tuto zakázku?",
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+            )
+            if odpoved == QtWidgets.QMessageBox.StandardButton.Yes:
+                self.table1.removeRow(current_row)
+                self.save_all_orders_admin()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Chyba při mazání zakázky: {e}")
+
+    def save_all_orders_admin(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            all_orders_data = {}
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Kritická chyba", f"Nelze načíst orders.json pro úpravy: {e}")
+            return
+
+        current_max_id = 0
+        if all_orders_data:
+            current_max_id = max([int(d.get("id", 0)) for d in all_orders_data.values()])
+
+        new_json_data = {}
+        
+        try:
+            for row in range(self.table1.rowCount()):
+                item_id      = self.table1.item(row, 0)
+                item_user_id = self.table1.item(row, 1)
+                item_nazev   = self.table1.item(row, 2)
+                item_pocet   = self.table1.item(row, 3)
+                item_popis   = self.table1.item(row, 4) 
+                item_stav    = self.table1.item(row, 5)
+                item_datum   = self.table1.item(row, 6)
+
+                # Validace prázdných produktů
+                nazev_text = item_nazev.text().strip() if item_nazev else ""
+                if not nazev_text:
+                    QtWidgets.QMessageBox.warning(self, "Chyba", f"Název zakázky na řádku {row+1} nesmí být prázdný!")
+                    return
+
+                raw_id = item_id.text() if item_id else ""
+                if raw_id.isdigit():
+                    this_id = int(raw_id)
+                else:
+                    current_max_id += 1
+                    this_id = current_max_id
+
+                datum_text = item_datum.text() if item_datum else ""
+                if not datum_text or datum_text.strip() == "":
+                    datum_text = datetime.now().strftime("%d.%m.%Y %H:%M")
+
+                key = f"order_{this_id}"
+                new_json_data[key] = {
+                    "id": this_id,
+                    "user_id": int(item_user_id.text()) if item_user_id and item_user_id.text().isdigit() else 0,
+                    "produkt": nazev_text,
+                    "pocet": item_pocet.text() if item_pocet else "0",
+                    "description": item_popis.text() if item_popis else "",
+                    "stav": item_stav.text() if item_stav else "Nová",
+                    "datum": datum_text
+                }
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba při zpracování", f"Data z tabulky nelze přečíst: {e}")
+            return
+
+        try:
+            with open("orders.json", "w", encoding="utf-8") as f:
+                json.dump(new_json_data, f, indent=4, ensure_ascii=False)
+            QtWidgets.QMessageBox.information(self, "Hotovo", "Všechny zakázky byly uloženy.")
+            self.load_user_orders()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba při zápisu", f"Chyba při ukládání do souboru: {e}")
+            
+    def create_orders_page(self):
+        page = QWidget()
+        self.order_layout = QVBoxLayout(page)
+        
+        self.table1 = QTableWidget(0, 7)
+        self.table1.setHorizontalHeaderLabels(["ID", "USER_ID", "Název", "Počet", "Popis", "Vyřízeno", "Datum"])
+        self.table1.setFixedWidth(730)
+        
+        for i in range(2, 5):
+            self.table1.setColumnWidth(i, 130)
+        self.order_layout.addWidget(self.table1)
+        
+        grid_layout = QtWidgets.QGridLayout()
+
+        self.update_button1 = QPushButton("Obnovit tabulku")
+        self.update_button1.clicked.connect(self.load_user_orders)
+        grid_layout.addWidget(self.update_button1, 0, 0)
+
+        self.save_button1 = QPushButton("Uložit změny")
+        self.save_button1.clicked.connect(self.save_all_orders_admin)
+        grid_layout.addWidget(self.save_button1, 0, 1)
+
+        self.add_order_button = QPushButton("Přidat objednávku")
+        self.add_order_button.clicked.connect(self.add_blank_order_row)
+        grid_layout.addWidget(self.add_order_button, 0, 2)
+
+        self.remove_order_button = QPushButton("Smazat objednávku")
+        self.remove_order_button.clicked.connect(self.delete_order_admin)
+        grid_layout.addWidget(self.remove_order_button, 0, 3)
+
+        self.order_layout.addLayout(grid_layout)
+        self.pages.addWidget(page) 
+
+    def create_stats_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Statistiky</h2>"))
+        self.pages.addWidget(page)
+
+    def create_logs_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Systémové logy</h2>"))
+        self.pages.addWidget(page)
+
+    def create_settings_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Nastavení vzhledu</h2>"))
+        
+        self.combo_vzhled_admin = QComboBox()
+        self.combo_vzhled_admin.addItems(["Normální", "Barvoslepý"])
+        self.combo_vzhled_admin.setFixedWidth(200)
+        self.combo_vzhled_admin.currentTextChanged.connect(aplikuj_vzhled)
+        
+        layout.addWidget(self.combo_vzhled_admin)
+        layout.addStretch()
+        self.pages.addWidget(page)
+
+# ==========================================
+#           ZÁKAZNÍK OKNO
+# ==========================================
+
+class CustomerSystem(QMainWindow):
+    def __init__(self, username, jmeno, id):
+        super().__init__()
+        self.current_user = username
+        self.current_user_name = jmeno
+        self.current_id = id
+
+        self.setWindowTitle(f"Zákazník - Přihlášen jako: {username}")
+        self.setFixedSize(1000, 600)
+
+        main_widget = QWidget()
+        main_layout = QHBoxLayout(main_widget)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(20)
+        self.setCentralWidget(main_widget)
+
+        self.sidebar = QListWidget()
+        self.sidebar.setFixedWidth(220)
+
+        menu_items = [
+            "Přehled",
+            "Moje zakázky",
+            "Můj profil",
+            "Nastavení vzhledu"
+        ]
+        self.sidebar.addItems(menu_items)
+        
+        for _ in range(4):
+            item = QListWidgetItem()
+            item.setFlags(QtCore.Qt.ItemFlag.NoItemFlags)
+            self.sidebar.addItem(item)
+            
+        self.sidebar.addItem("Podpora/Kontakt")
+        self.sidebar.addItem("Odhlásit")
+        self.sidebar.currentRowChanged.connect(self.switch_page)
+        self.sidebar.itemClicked.connect(self.handle_sidebar_click)
+        main_layout.addWidget(self.sidebar)
+
+        self.pages = QStackedWidget()
+        main_layout.addWidget(self.pages)
+
+        self.create_dashboard_page()
+        self.create_order_page()
+        self.create_profile_page()
+        self.create_settings_page()
+
+        self.sidebar.setCurrentRow(0)
+        self.load_user_orders()
+
+    def logout_action(self):
+        odpoved = QMessageBox.question(
+            self, "Odhlášení", "Opravdu se chcete odhlásit?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        if odpoved == QMessageBox.StandardButton.Yes:
+            self.close()
+
+    def handle_sidebar_click(self, item):
+        if item.text() == "Odhlásit":
+            self.logout_action()
+
+    def switch_page(self, index):
+        if index < self.pages.count():
+            self.pages.setCurrentIndex(index)
+
+    def add_blank_order_row(self):
+        try:
+            row_position = self.table.rowCount()
+            self.table.insertRow(row_position)
+            
+            self.table.setItem(row_position, 0, QTableWidgetItem(""))
+            self.table.setItem(row_position, 1, QTableWidgetItem(""))
+            self.table.setItem(row_position, 2, QTableWidgetItem("1"))
+            
+            description_item = QTableWidgetItem("")
+            self.table.setItem(row_position, 3, description_item)
+
+            status_item = QTableWidgetItem("Nová")
+            status_item.setFlags(status_item.flags() & ~QtCore.Qt.ItemIsEditable)
+            self.table.setItem(row_position, 4, status_item)
+            
+            # Datum skryjeme vložením do indexu 5 prázdnou buňku, při uložení se generuje nová
+            self.table.setItem(row_position, 5, QTableWidgetItem(""))
+        except Exception as e:
+            print(f"Chyba přidání řádku zákazníkem: {e}")
+
+    def load_user_orders(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            self.table.setRowCount(0)
+            return
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se načíst soubor zakázek: {e}")
+            return
+
+        try:
+            self.table.setRowCount(0)
+            for key, data in all_orders_data.items():
+                if str(data.get("user_id")) == str(self.current_id):
+                    row = self.table.rowCount()
+                    self.table.insertRow(row)
+                    
+                    self.table.setItem(row, 0, QTableWidgetItem(str(data.get("id", ""))))
+                    self.table.setItem(row, 1, QTableWidgetItem(str(data.get("produkt", ""))))
+                    self.table.setItem(row, 2, QTableWidgetItem(str(data.get("pocet", "0"))))
+                    
+                    desc_item = QTableWidgetItem(str(data.get("description", "")))
+                    self.table.setItem(row, 3, desc_item)
+                    
+                    status_item = QTableWidgetItem(str(data.get("stav", "Nová")))
+                    status_item.setFlags(status_item.flags() & ~QtCore.Qt.ItemIsEditable)
+                    self.table.setItem(row, 4, status_item)
+                    self.table.setItem(row, 5, QTableWidgetItem(str(data.get("datum", ""))))
+        except Exception as e:
+            print(f"Chyba načítání dat do tabulky zákazníka: {e}")
+
+    def save_user_orders(self):
+        try:
+            with open("orders.json", "r", encoding="utf-8") as f:
+                all_orders_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            all_orders_data = {}
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Kritická chyba", f"Chyba při otevírání orders.json: {e}")
+            return
+
+        current_max_id = 0
+        if all_orders_data:
+            current_max_id = max([int(d.get("id", 0)) for d in all_orders_data.values()])
+
+        keys_to_remove = [k for k, v in all_orders_data.items() if str(v.get("user_id")) == str(self.current_id)]
+        for key in keys_to_remove:
+            del all_orders_data[key]
+
+        try:
+            for row in range(self.table.rowCount()):
+                id_item = self.table.item(row, 0)
+                produkt_item = self.table.item(row, 1)
+                pocet_item = self.table.item(row, 2)
+                popis_item = self.table.item(row, 3)
+                stav_item = self.table.item(row, 4)
+                item_datum = self.table.item(row, 5)
+
+                # Validace pole "Název" a "Počet"
+                prod_text = produkt_item.text().strip() if produkt_item else ""
+                if not prod_text:
+                    QtWidgets.QMessageBox.warning(self, "Upozornění", f"Název zakázky (řádek {row+1}) nesmí být prázdný!")
+                    # self.load_user_orders() # Vrátí tabulku do původního stavu
+                    return
+
+                ulozeny_cas = item_datum.text() if item_datum and item_datum.text() != "" else datetime.now().strftime("%d.%m.%Y %H:%M")
+                
+                raw_id = id_item.text() if id_item else ""
+                
+                if raw_id.isdigit():
+                    this_id = int(raw_id)
+                else:
+                    current_max_id += 1
+                    this_id = current_max_id
+                
+                key = f"order_{this_id}"
+                all_orders_data[key] = {
+                    "id": this_id,
+                    "user_id": self.current_id,
+                    "produkt": prod_text,
+                    "pocet": pocet_item.text() if pocet_item else "0",
+                    "description": popis_item.text() if popis_item else "",
+                    "stav": stav_item.text() if stav_item else "Nová",
+                    "datum": ulozeny_cas
+                }
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Chyba při formátování zakázek: {e}")
+            return
+
+        try:
+            with open("orders.json", "w", encoding="utf-8") as f:
+                json.dump(all_orders_data, f, indent=4, ensure_ascii=False)
+            
+            QtWidgets.QMessageBox.information(self, "Uloženo", "Vaše zakázky byly uloženy.")
+            self.load_user_orders()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba při ukládání", f"Soubor se zakázkami se nepodařilo zapsat: {e}")
+
+    def delete_order(self):
+        try:
+            current_row = self.table.currentRow()
+            if current_row < 0:
+                QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdříve vyberte zakázku, kterou chcete smazat.")
+                return
+
+            odpoved = QtWidgets.QMessageBox.question(
+                self, "Potvrdit smazání", "Opravdu chcete smazat tuto zakázku?",
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No
+            )
+            if odpoved == QtWidgets.QMessageBox.StandardButton.Yes:
+                self.table.removeRow(current_row)
+                self.save_user_orders()
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self, "Chyba", f"Nepodařilo se smazat zakázku: {e}")
+
+    def create_dashboard_page(self):
+        page = QWidget()
+        self.dashboard_layout = QVBoxLayout(page)
+        self.dashboard_layout.addWidget(QLabel("<h2>Přehled</h2>"))
+        self.dashboard_layout.addStretch()
+        self.pages.addWidget(page)
+
+    def create_order_page(self):
+        page = QWidget()
+        self.order_layout = QVBoxLayout(page)
+        
+        self.table = QTableWidget(0, 6)
+        self.table.setHorizontalHeaderLabels(["ID", "Název", "Počet", "Popis", "Vyřízeno", "Datum"])
+        self.table.setColumnHidden(0, True) 
+        self.table.setColumnHidden(5, True) # Skryjeme datum pro zákazníka
+        self.table.setFixedWidth(730)
+        
+        for i in range(1, 5):
+            self.table.setColumnWidth(i, 175)
+        self.order_layout.addWidget(self.table)
+        
+        grid_layout = QtWidgets.QGridLayout()
+
+        self.update_button = QPushButton("Obnovit tabulku")
+        self.update_button.clicked.connect(self.load_user_orders)
+        grid_layout.addWidget(self.update_button, 0, 0)
+
+        self.save_button = QPushButton("Uložit změny")
+        self.save_button.clicked.connect(self.save_user_orders)
+        grid_layout.addWidget(self.save_button, 0, 1)
+
+        self.add_order_button = QPushButton("Přidat objednávku")
+        self.add_order_button.clicked.connect(self.add_blank_order_row)
+        grid_layout.addWidget(self.add_order_button, 0, 2)
+
+        self.remove_order_button = QPushButton("Smazat objednávku")
+        self.remove_order_button.clicked.connect(self.delete_order)
+        grid_layout.addWidget(self.remove_order_button, 0, 3)
+
+        self.order_layout.addLayout(grid_layout)
+        self.pages.addWidget(page) 
+
+    def create_profile_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Můj profil</h2>"))
+        self.pages.addWidget(page)
+
+    def create_settings_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.addWidget(QLabel("<h2>Nastavení vzhledu</h2>"))
+        
+        self.combo_vzhled_cust = QComboBox()
+        self.combo_vzhled_cust.addItems(["Normální", "Barvoslepý"])
+        self.combo_vzhled_cust.setFixedWidth(200)
+        self.combo_vzhled_cust.currentTextChanged.connect(aplikuj_vzhled)
+        
+        layout.addWidget(self.combo_vzhled_cust)
+        layout.addStretch()
+        self.pages.addWidget(page)
+
+# ==========================================
+# 3. SPOUŠTĚCÍ BLOK
+# ==========================================
+
+if __name__ == "__main__":
+    try:
+        app = QApplication(sys.argv)
+        app.setStyleSheet(NORMAL_STYLE_MAIN)
+        app.setWindowIcon(QIcon("assets/logo.png"))
+
+        while True:
+            login_window = AuthDialog()
+            login_window.setWindowFlags(login_window.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+            
+            if login_window.exec() == QDialog.DialogCode.Accepted:
+                role = login_window.user_role
+                username = login_window.final_username 
+                jmeno = login_window.final_name 
+                user_id = login_window.user_id
+                
+                if role == "admin":
+                    window = AdminSystem(username=username, jmeno=jmeno, id=user_id)
+                else:
+                    window = CustomerSystem(username=username, jmeno=jmeno, id=user_id)
+                
+                window.show()
+                app.exec() 
+            else:
+                break
+
+        sys.exit()
+    except Exception as e:
+        print(f"Kritická chyba běhu aplikace: {e}")
