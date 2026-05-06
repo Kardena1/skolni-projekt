@@ -737,6 +737,8 @@ class AdminSystem(QMainWindow):
 
     def save_custommer_data(self):
         new_data = {}
+        seen_usernames = set() # NOVÉ: Množina pro sledování duplicit
+        
         try:
             for row in range(self.table.rowCount()):
                 id_val = self.table.item(row, 0).text().strip() if self.table.item(row, 0) else ""
@@ -750,10 +752,17 @@ class AdminSystem(QMainWindow):
                 combo = self.table.cellWidget(row, 7)
                 vybrana_role = combo.currentText() if combo else "zakaznik"
 
-                # Validace pole
+                # Validace prázdného pole
                 if not all([username_val, jmeno_val, prijmeni_val, password_val]):
-                    QMessageBox.warning(self, "Upozornění", f"Na řádku {row + 1} chybí povinné údaje (Jméno, Příjmení, Username, Heslo). Úpravy se neuloží.")
+                    QtWidgets.QMessageBox.warning(self, "Upozornění", f"Na řádku {row + 1} chybí povinné údaje (Jméno, Příjmení, Username, Heslo). Úpravy se neuloží.")
                     return
+
+                # --- NOVÉ: Kontrola duplicitního username ---
+                if username_val in seen_usernames:
+                    QtWidgets.QMessageBox.warning(self, "Chyba duplicity", f"Uživatelské jméno '{username_val}' se v tabulce opakuje.\n\nKaždý uživatel musí mít unikátní přihlašovací jméno. Úpravy se neuložily.")
+                    return
+                seen_usernames.add(username_val)
+                # ---------------------------------------------
 
                 key = f"user_{id_val}"
                 new_data[key] = {
@@ -769,10 +778,10 @@ class AdminSystem(QMainWindow):
             
             with open(self.user_file, 'w', encoding="utf-8") as file:
                 json.dump(new_data, file, indent=4, ensure_ascii=False)
-            QMessageBox.information(self, "Uloženo", "Data uživatelů byla úspěšně uložena!")
+            QtWidgets.QMessageBox.information(self, "Uloženo", "Data uživatelů byla úspěšně uložena!")
+            
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Kritická chyba", f"Data nebylo možné uložit: {e}")
-
     def create_customers_list_page(self):
         page = QWidget()
         self.customer_layout = QVBoxLayout(page)
