@@ -962,13 +962,13 @@ class AdminSystem(QMainWindow):
     def create_stats_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.addWidget(QLabel("<h2>Statistiky</h2>"))
+        layout.addWidget(QLabel("<h2>WORK IN PROGRESS</h2>"))
         self.pages.addWidget(page)
 
     def create_logs_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.addWidget(QLabel("<h2>Systémové logy</h2>"))
+        layout.addWidget(QLabel("<h2>WORK IN PROGRESS</h2>"))
         self.pages.addWidget(page)
 
     def create_settings_page(self):
@@ -1194,7 +1194,7 @@ class CustomerSystem(QMainWindow):
     def create_dashboard_page(self):
         page = QWidget()
         self.dashboard_layout = QVBoxLayout(page)
-        self.dashboard_layout.addWidget(QLabel("<h2>Přehled</h2>"))
+        self.dashboard_layout.addWidget(QLabel("<h2>WORK IN PROGRESS</h2>"))
         self.dashboard_layout.addStretch()
         self.pages.addWidget(page)
 
@@ -1236,7 +1236,7 @@ class CustomerSystem(QMainWindow):
     def create_profile_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.addWidget(QLabel("<h2>Můj profil</h2>"))
+        layout.addWidget(QLabel("<h2>WORK IN PROGRESS</h2>"))
         self.pages.addWidget(page)
 
     def create_settings_page(self):
