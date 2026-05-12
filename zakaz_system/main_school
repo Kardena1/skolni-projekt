@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                              QListWidget, QListWidgetItem, QTableWidget, QHeaderView, QTableWidgetItem,
                              QLineEdit, QDialog, QMessageBox, QGroupBox, QComboBox)
 from PyQt5.QtCore import Qt, QRegularExpression, QSize
-from PyQt5.QtGui import QIcon, QPixmap, QRegularExpressionValidator
+from PyQt5.QtGui import QIcon, QPixmap, QRegularExpressionValidator,QIntValidator
 
 
 NORMAL_STYLE_MAIN = """
@@ -292,9 +292,6 @@ class AuthDialog(QDialog):
         btn_to_reg.clicked.connect(lambda: self.auth_pages.setCurrentIndex(1))
         layout.addWidget(btn_to_reg)
 
-        regex_USERNAME = QRegularExpression(r"^[a-zA-Z0-9]+([._][a-zA-Z0-9]+)?$")
-        validator_user = QRegularExpressionValidator(regex_USERNAME)
-        self.login_user.setValidator(validator_user)
 
         regex_password = QRegularExpression(r"^[a-zA-Z0-9!@#$%^&*_\-+=]+$")
         validator_password = QRegularExpressionValidator(regex_password)
@@ -674,7 +671,13 @@ class AdminSystem(QMainWindow):
             if current_row < 0:
                 QtWidgets.QMessageBox.warning(self, "Chyba", "Nejdříve vyberte uživatele, kterého chcete smazat.")
                 return
+            
+            target_id = self.table.item(current_row, 0).text()
                 
+            if int(target_id) == self.current_id:
+                QtWidgets.QMessageBox.warning(self, "Chyba", "Nemůžete smazat svůj vlastní účet!")
+                return
+
             username_item = self.table.item(current_row, 1)
             username = username_item.text() if username_item else "Neznámý"
 
@@ -695,10 +698,10 @@ class AdminSystem(QMainWindow):
             msg.setText("Opravdu chcete tomuto uživateli přidělit práva ADMINA?")
             msg.setIcon(QtWidgets.QMessageBox.Icon.Warning)
             msg.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok | 
-                                   QtWidgets.QMessageBox.StandardButton.Cancel)
+                                QtWidgets.QMessageBox.StandardButton.Cancel)
             
             if msg.exec() == QMessageBox.StandardButton.Cancel:
-                combo.setCurrentIndex(0)
+                    combo.setCurrentIndex(0)
 
     def load_custommer_data(self):
         try:
@@ -896,12 +899,17 @@ class AdminSystem(QMainWindow):
                 item_stav    = self.table1.item(row, 5)
                 item_datum   = self.table1.item(row, 6)
 
+                ipocet = item_pocet.text()
                 # Validace prázdných produktů
                 nazev_text = item_nazev.text().strip() if item_nazev else ""
                 if not nazev_text:
                     QtWidgets.QMessageBox.warning(self, "Chyba", f"Název zakázky na řádku {row+1} nesmí být prázdný!")
                     return
 
+                if not ipocet.isdigit():
+                    QMessageBox.information(self, "do policka pocty napiste cislo")
+                    return
+                
                 raw_id = item_id.text() if item_id else ""
                 if raw_id.isdigit():
                     this_id = int(raw_id)
@@ -1067,10 +1075,15 @@ class CustomerSystem(QMainWindow):
         try:
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
+            line_edit = QLineEdit()
+            line_edit.setText("1")
+            validator = QIntValidator(1, 9999)
+            line_edit.setValidator(validator)
             
             self.table.setItem(row_position, 0, QTableWidgetItem(""))
             self.table.setItem(row_position, 1, QTableWidgetItem(""))
-            self.table.setItem(row_position, 2, QTableWidgetItem("1"))
+            self.table.setCellWidget(row_position, 2, line_edit)
+            
             
             description_item = QTableWidgetItem("")
             self.table.setItem(row_position, 3, description_item)

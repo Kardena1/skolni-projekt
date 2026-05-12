@@ -1,64 +1,10 @@
 {
-    "order_8": {
-        "id": 8,
-        "user_id": 2,
-        "produkt": "admin creaton",
-        "pocet": "67",
-        "description": "objednavka se zpracovava",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_9": {
-        "id": 9,
-        "user_id": 2,
-        "produkt": "ss",
-        "pocet": "12",
-        "description": "",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_11": {
-        "id": 11,
-        "user_id": 2,
-        "produkt": "testovani",
-        "pocet": "122",
-        "description": "",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_4": {
-        "id": 4,
-        "user_id": 1,
-        "produkt": "ssdwa",
-        "pocet": "123",
-        "description": "priprava k odeslani",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_5": {
-        "id": 5,
-        "user_id": 1,
-        "produkt": "13",
-        "pocet": "23",
-        "description": "objednavka odeslana.",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_6": {
-        "id": 6,
-        "user_id": 1,
-        "produkt": "jobka",
-        "pocet": "12",
-        "description": "",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
     "order_7": {
         "id": 7,
         "user_id": 1,
         "produkt": "ss",
         "pocet": "2",
-        "description": "",
+        "description": "dawdad",
         "stav": "Ne",
         "datum": "2024-05-23"
     },
@@ -69,24 +15,6 @@
         "pocet": "321",
         "description": "dawdad",
         "stav": "Ano",
-        "datum": "2024-05-23"
-    },
-    "order_12": {
-        "id": 12,
-        "user_id": 1,
-        "produkt": "test datetime",
-        "pocet": "231",
-        "description": "nefunguje",
-        "stav": "Ne",
-        "datum": "2024-05-23"
-    },
-    "order_13": {
-        "id": 13,
-        "user_id": 7,
-        "produkt": "ss",
-        "pocet": "",
-        "description": "",
-        "stav": "Ne",
         "datum": "2024-05-23"
     }
 }
